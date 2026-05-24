@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2D6A4F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hogar N&J">
+<link rel="manifest" href="data:application/json,{%22name%22:%22Hogar%20Nicol%C3%A1s%20%26%20Julieth%22,%22short_name%22:%22Hogar%20N%26J%22,%22description%22:%22Sistema%20de%20limpieza%20del%20hogar%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23F7F5F0%22,%22theme_color%22:%22%232D6A4F%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'80'%20fill%3D'%232D6A4F'%2F%3E%3Ctext%20x%3D'50%25'%20y%3D'55%25'%20font-size%3D'280'%20text-anchor%3D'middle'%20dominant-baseline%3D'middle'%3E%F0%9F%8F%A0%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]}">
+<title>Hogar · Nicolás & Julieth</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --border: #E2DDD5;
+  --border2: #D0C9BE;
+  --text: #1A1714;
+  --text2: #6B6560;
+  --text3: #A09892;
+  --accent: #2D6A4F;
+  --accent2: #40916C;
+  --accent-bg: #D8F3DC;
+  --ju: #7B3F8C;
+  --ju-bg: #F3E8FF;
+  --ni: #1B4F9C;
+  --ni-bg: #DBEAFE;
+  --both: #8B4513;
+  --both-bg: #FEF3C7;
+  --red: #C0392B;
+  --red-bg: #FDECEA;
+  --amber: #D97706;
+  --amber-bg: #FEF3C7;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+h1, h2, h3 { font-family: 'DM Serif Display', serif; }
+
+/* LAYOUT */
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 50; }
+.sidebar-logo { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.sidebar-logo h1 { font-size: 20px; line-height: 1.2; color: var(--text); }
+.sidebar-logo p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 1.25rem; font-size: 14px; color: var(--text2); cursor: pointer; transition: all .15s; border-left: 2px solid transparent; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-section { font-size: 10px; font-weight: 600; letter-spacing: .08em; color: var(--text3); padding: 12px 1.25rem 4px; text-transform: uppercase; }
+.main { padding: 1.5rem; overflow-y: auto; max-width: 960px; }
+.sidebar.mobile-open { display: block !important; position: fixed; top: 0; left: 0; height: 100vh; z-index: 70; width: 260px; box-shadow: 4px 0 20px rgba(0,0,0,.15); }
+.page { display: none; }
+.page.active { display: block; }
+.page-header { margin-bottom: 1.5rem; }
+.page-header h2 { font-size: 28px; color: var(--text); }
+.page-header p { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+/* SUPABASE CONFIG */
+.config-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.5rem; }
+.config-box h3 { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.config-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.config-row.single { grid-template-columns: 1fr; }
+label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+input[type=text], input[type=password] { width: 100%; padding: 8px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; }
+input:focus { border-color: var(--accent2); }
+.btn { padding: 8px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; border: 1px solid transparent; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-outline { background: transparent; border-color: var(--border2); color: var(--text2); }
+.btn-outline:hover { background: var(--surface2); color: var(--text); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot-green { background: #22c55e; }
+.dot-red { background: #ef4444; }
+.dot-gray { background: #9ca3af; }
+.status-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); margin-top: 8px; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.metric-label { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+.metric-val { font-family: 'DM Serif Display', serif; font-size: 28px; }
+.metric-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.mv-green { color: var(--accent); }
+.mv-ju { color: var(--ju); }
+.mv-ni { color: var(--ni); }
+
+/* WHO BADGES */
+.badge { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 99px; display: inline-flex; align-items: center; gap: 4px; }
+.badge-ju { background: var(--ju-bg); color: var(--ju); }
+.badge-ni { background: var(--ni-bg); color: var(--ni); }
+.badge-both { background: var(--both-bg); color: var(--both); }
+.badge-diff-easy { background: #D1FAE5; color: #065F46; }
+.badge-diff-med { background: #FEF3C7; color: #92400E; }
+.badge-diff-hard { background: #FDECEA; color: #7F1D1D; }
+
+/* CRONOGRAMA */
+.week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.week-btn { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; transition: all .15s; text-align: left; }
+.week-btn:hover { border-color: var(--accent2); }
+.week-btn.active { background: var(--accent-bg); border-color: var(--accent2); }
+.week-btn-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+.week-btn-date { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 2px; }
+.week-btn.active .week-btn-label, .week-btn.active .week-btn-date { color: var(--accent); }
+
+.block-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.block-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; user-select: none; transition: background .15s; }
+.block-header:hover { background: var(--surface2); }
+.block-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; }
+.block-time { font-size: 12px; font-weight: 500; color: white; padding: 2px 10px; border-radius: 99px; }
+.bt-green { background: var(--accent); }
+.bt-amber { background: var(--amber); }
+.bt-red { background: var(--red); }
+.block-body { display: none; border-top: 1px solid var(--border); }
+.block-body.open { display: block; }
+.task-table { width: 100%; }
+.task-table thead tr { background: var(--bg); }
+.task-table th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; padding: 8px 16px; text-align: left; }
+.task-table td { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.task-name { font-weight: 500; color: var(--text); }
+.task-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.task-check { display: flex; align-items: center; }
+.chk { width: 18px; height: 18px; border: 2px solid var(--border2); border-radius: 4px; cursor: pointer; appearance: none; transition: all .15s; flex-shrink: 0; }
+.chk:checked { background: var(--accent); border-color: var(--accent); }
+.chk:checked::after { content: '✓'; display: block; text-align: center; color: white; font-size: 12px; line-height: 14px; font-weight: 700; }
+.completed td { opacity: .5; }
+.completed .task-name { text-decoration: line-through; }
+
+.guide-detail { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: var(--radius-sm); margin: 0 16px 12px; padding: 14px; }
+.guide-detail h4 { font-size: 14px; font-weight: 500; color: var(--accent); margin-bottom: 10px; }
+.step-ol { padding-left: 0; list-style: none; }
+.step-ol li { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid #D1FAE5; font-size: 13px; line-height: 1.5; }
+.step-ol li:last-child { border-bottom: none; }
+.step-n { min-width: 22px; height: 22px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.products { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.prod-tag { background: white; border: 1px solid var(--border2); border-radius: 99px; font-size: 11px; padding: 3px 10px; color: var(--text2); }
+.tip { background: white; border-left: 3px solid var(--accent2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 8px 12px; font-size: 12px; color: var(--text2); margin-top: 10px; }
+
+/* REGISTRO */
+.register-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.person-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.person-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.person-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 16px; font-weight: 700; color: white; }
+.av-ju { background: var(--ju); }
+.av-ni { background: var(--ni); }
+.person-info { flex: 1; margin-left: 10px; }
+.person-name { font-size: 15px; font-weight: 500; }
+.person-sub { font-size: 12px; color: var(--text3); }
+.person-stats { display: flex; gap: 16px; padding: 0 16px 14px; }
+.ps { text-align: center; }
+.ps-val { font-family: 'DM Serif Display', serif; font-size: 22px; }
+.ps-label { font-size: 11px; color: var(--text3); }
+.progress-track { height: 4px; background: var(--surface2); border-radius: 99px; margin: 0 16px 14px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; transition: width .3s; }
+.pf-ju { background: var(--ju); }
+.pf-ni { background: var(--ni); }
+.task-log { border-top: 1px solid var(--border); max-height: 300px; overflow-y: auto; }
+.log-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 13px; transition: background .1s; }
+.log-item:last-child { border-bottom: none; }
+.log-item:hover { background: var(--surface2); }
+.log-check { color: var(--accent); font-size: 14px; }
+.log-uncheck { color: var(--text3); font-size: 14px; }
+.log-name { flex: 1; }
+.log-time { font-size: 11px; color: var(--text3); }
+.log-pts { font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-bg); padding: 2px 7px; border-radius: 99px; }
+.log-empty { padding: 24px 16px; text-align: center; color: var(--text3); font-size: 13px; }
+
+/* MONTHLY */
+.month-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.month-nav { display: flex; align-items: center; gap: 12px; }
+.month-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; cursor: pointer; font-size: 16px; color: var(--text2); transition: all .15s; }
+.month-nav button:hover { background: var(--surface2); color: var(--text); }
+.month-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day-name { text-align: center; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; padding: 6px 0; }
+.cal-day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); min-height: 72px; padding: 6px 8px; cursor: pointer; transition: all .15s; position: relative; }
+.cal-day:hover { border-color: var(--accent2); }
+.cal-day.empty { background: transparent; border: none; cursor: default; }
+.cal-day.today { border-color: var(--accent); background: var(--accent-bg); }
+.cal-day.has-tasks { border-color: var(--accent2); }
+.cal-day.saturday { background: #EFF6FF; border-color: #BFDBFE; }
+.cal-day.saturday.has-tasks { background: #D1FAE5; border-color: #6EE7B7; }
+.cal-num { font-size: 13px; font-weight: 500; color: var(--text); }
+.cal-day.empty .cal-num { color: transparent; }
+.cal-dots { display: flex; gap: 2px; flex-wrap: wrap; margin-top: 4px; }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+.cal-dot-ju { background: var(--ju); }
+.cal-dot-ni { background: var(--ni); }
+.cal-dot-done { background: var(--accent); }
+.cal-label { font-size: 10px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+
+/* DAY DETAIL MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; max-width: 620px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text3); padding: 0; line-height: 1; }
+.modal-close:hover { color: var(--text); }
+.modal-task { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 8px; }
+.modal-task-check { margin-top: 2px; }
+.modal-task-info { flex: 1; }
+.modal-task-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.modal-task-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.modal-section { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 8px; }
+
+/* SHOPPING LIST */
+.shop-categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.shop-cat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.shop-cat-header { padding: 12px 14px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.shop-cat-header .cat-icon { font-size: 18px; }
+.shop-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+.shop-item .chk { flex-shrink: 0; }
+.shop-item span { flex: 1; }
+.shop-item.checked span { text-decoration: line-through; color: var(--text3); }
+.shop-item .shop-note { font-size: 11px; color: var(--text3); }
+
+/* DAILY */
+.daily-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.daily-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.daily-card-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.daily-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.daily-item:last-child { border-bottom: none; }
+.daily-item .chk { flex-shrink: 0; }
+.daily-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: white; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; z-index: 200; opacity: 0; transform: translateY(8px); transition: all .25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.section-title { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+
+/* TOPBAR */
+.topbar { display:none; position:sticky; top:0; z-index:50; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 16px; align-items:center; justify-content:space-between; }
+.hamburger { background:none; border:none; cursor:pointer; padding:4px; display:flex; flex-direction:column; gap:5px; }
+.hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:2px; transition:all .2s; }
+/* SIDEBAR OVERLAY */
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:60; }
+.sidebar-overlay.open { display:block; }
+.sidebar.mobile-open { display:flex !important; flex-direction:column; position:fixed; top:0; left:0; height:100vh; width:240px; z-index:70; box-shadow:4px 0 24px rgba(0,0,0,.18); }
+
+@media (max-width: 768px) {
+  .topbar { display:flex; }
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display:none; }
+  .main { padding:1rem 1rem 1.5rem; margin-top:0; }
+  .metrics { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .week-grid { grid-template-columns:repeat(2,1fr); }
+  .register-grid { grid-template-columns:1fr; }
+  .daily-section { grid-template-columns:1fr; }
+  .page-header h2 { font-size:22px; }
+  .block-card { margin-bottom:8px; }
+  .task-table th,.task-table td { padding:8px 10px; font-size:12px; }
+  .who-select { max-width:110px; font-size:11px; }
+  .config-box { padding:1rem; }
+  .register-grid .person-card { border-radius:var(--radius); }
+  .guia-title { font-size:14px; }
+  .modal { padding:1rem; margin:.5rem; max-height:90vh; }
+  .week-btn { padding:8px 10px; }
+  .week-btn-date { font-size:13px; }
+}
+@media (max-width: 480px) {
+  .metrics { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .metric-val { font-size:22px; }
+  .week-grid { grid-template-columns:1fr 1fr; }
+  .task-name { font-size:12px; }
+  .task-desc { font-size:11px; }
+  .who-select { max-width:90px; font-size:11px; padding:3px 6px; }
+  .block-time { font-size:11px; padding:2px 8px; }
+  .task-table th:nth-child(3) { display:none; }
+  .task-table td:nth-child(3) { display:none; }
+}
+/* shop */
+.shop-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.shop-cat-header{display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:13px;font-weight:600;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.shop-cat-header:hover{background:var(--border)}
+.shop-cat-items{display:none}
+.shop-cat-items.open{display:block}
+.shop-item{display:flex;align-items:flex-start;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:13px;transition:background .1s}
+.shop-item:last-child{border-bottom:none}
+.shop-item:hover{background:var(--surface2)}
+.shop-item.checked .sname{text-decoration:line-through;color:var(--text3)}
+.sname{display:block;color:var(--text2)}
+.shop-note{display:block;font-size:11px;color:var(--text3);margin-top:1px}
+/* who selector */
+.who-select{font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;max-width:130px}
+.who-select:focus{border-color:var(--accent2)}
+.who-select.sel-ju{border-color:var(--ju);color:var(--ju);background:var(--ju-bg)}
+.who-select.sel-ni{border-color:var(--ni);color:var(--ni);background:var(--ni-bg)}
+.who-select.sel-both{border-color:var(--both);color:var(--both);background:var(--both-bg)}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+    <div>
+      <div style="font-family:'DM Serif Display',serif;font-size:17px;line-height:1.1">Hogar · N&J</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:1px" id="topbar-section">Sistema completo</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span id="status-dot-top" style="width:8px;height:8px;border-radius:50%;background:#9ca3af;display:inline-block;flex-shrink:0"></span>
+    <span style="font-size:11px;color:var(--text3)">Supabase</span>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>Hogar</h1>
+    <p>Nicolás & Julieth</p>
+  </div>
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="nav('sistema')"><span class="icon">📌</span> Sistema completo</div>
+  <div class="nav-item" onclick="nav('configuracion')"><span class="icon">⚙️</span> Configuración</div>
+  <div class="nav-section">Limpieza</div>
+  <div class="nav-item" onclick="nav('cronograma')"><span class="icon">📋</span> Cronograma semanal</div>
+  <div class="nav-item" onclick="nav('mensual')"><span class="icon">📅</span> Calendario mensual</div>
+  <div class="nav-item" onclick="nav('diario')"><span class="icon">⏱️</span> Rutinas diarias</div>
+  <div class="nav-section">Registro</div>
+  <div class="nav-item" onclick="nav('registro')"><span class="icon">✅</span> Mi registro</div>
+  <div class="nav-section">Recursos</div>
+  <div class="nav-item" onclick="nav('compras')"><span class="icon">🛒</span> Lista de compras</div>
+  <div class="nav-item" onclick="nav('guias')"><span class="icon">📖</span> Guías de limpieza</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- RESUMEN -->
+<div id="page-resumen" class="page">
+  <div class="page-header">
+    <h2>Panel de control</h2>
+    <p>Apartamento 50–80 m² · 3 habitaciones · 2 baños · gato · cerámica en baños y cocina · laminado en sala y habitaciones</p>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total semanal</div><div class="metric-val mv-green">4h</div><div class="metric-sub">Julieth (bloque)</div></div>
+    <div class="metric"><div class="metric-label">Julieth / semana</div><div class="metric-val mv-ju">4h</div><div class="metric-sub">+ 10–20 min diarios</div></div>
+    <div class="metric"><div class="metric-label">Nicolás / semana</div><div class="metric-val mv-ni">Flex</div><div class="metric-sub">Tiempo variable</div></div>
+    <div class="metric"><div class="metric-label">Tareas completadas</div><div class="metric-val mv-green" id="metric-done">0</div><div class="metric-sub">esta semana</div></div>
+  </div>
+
+  <div class="config-box" style="border-left: 3px solid var(--accent);">
+    <h3 style="font-size:14px; margin-bottom:6px;">💡 Principios del sistema</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; color:var(--text2);">
+      <div>
+        <p style="font-weight:500; color:var(--text); margin-bottom:4px;">Estrategia Julieth (4h + 10-20 min/día)</p>
+        <p>Las 4h del sábado son el bloque fuerte. Los 10–20 min diarios son el anti-caos que mantiene el sistema funcionando entre semanas.</p>
+      </div>
+      <div>
+        <p style="font-weight:500; color:var(--text); margin-bottom:4px;">Estrategia Nicolás (tiempo flexible)</p>
+        <p>Las tareas de Nicolás están marcadas como <span class="badge badge-ni">Nicolás</span> en el cronograma. Él las hace según disponibilidad, idealmente el mismo sábado.</p>
+      </div>
+      <div>
+        <p style="font-weight:500; color:var(--text); margin-bottom:4px;">Factor gato 🐱</p>
+        <p>Bandeja diaria (Nicolás). Aspirar cerámico 2×/semana por el pelo. Cepillar al gato 3×/semana reduce 60% del pelo acumulado.</p>
+      </div>
+      <div>
+        <p style="font-weight:500; color:var(--text); margin-bottom:4px;">Pisos mixtos + mampara de cristal</p>
+        <p>Baños/cocina = cerámica (mopa húmeda normal). Sala, comedor y habitaciones = laminado (mopa CASI SECA, producto específico, nunca agua abundante). Mampara: escurridor post-ducha siempre.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="supabase-status-home">
+    <span class="status-dot dot-gray" id="status-dot-home"></span>
+    <span id="status-text-home">Supabase no conectado — ve a Configuración para vincular</span>
+  </div>
+</div>
+
+<!-- SISTEMA COMPLETO -->
+<div id="page-sistema" class="page active">
+  <div class="page-header">
+    <h2>Sistema completo</h2>
+    <p>Toda la lógica del hogar · principios, estrategia, anti-acumulación y distribución</p>
+  </div>
+
+  <div class="section-title">Distribución semanal de carga</div>
+  <div class="config-box" style="margin-bottom:1.25rem">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px">
+      <span style="min-width:70px;font-weight:500;color:var(--ju)">Julieth</span>
+      <div style="flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden"><div style="width:100%;height:100%;background:var(--ju);border-radius:99px"></div></div>
+      <span style="min-width:130px;text-align:right;color:var(--text2);font-size:12px">4h sábado + ~70 min/semana diario</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+      <span style="min-width:70px;font-weight:500;color:var(--ni)">Nicolás</span>
+      <div style="flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden"><div style="width:55%;height:100%;background:var(--ni);border-radius:99px"></div></div>
+      <span style="min-width:130px;text-align:right;color:var(--text2);font-size:12px">Flex sábado + ~35 min/semana diario</span>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-top:10px">Nicolás trabaja en paralelo con Julieth el sábado. Si no puede ese día, sus tareas marcadas en azul se reagendan sin romper el sistema.</p>
+  </div>
+
+  <div class="section-title">Orden correcto de limpieza — el sábado</div>
+  <div class="block-card" style="margin-bottom:1.25rem">
+    <div style="padding:14px 16px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-bottom:8px">
+        <div style="background:var(--ju-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--ju)">1. Poner lavadora + aplicar antical baños</div>
+        <div style="background:var(--ni-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--ni)">2. Ordenar + despejar + basuras</div>
+        <div style="background:var(--amber-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--amber)">3. Baños en paralelo (20 min cada uno)</div>
+        <div style="background:var(--accent-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--accent)">4. Cocina + zona de lavado</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+        <div style="background:#F1EFE8;border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:#444">5. Sala, comedor y habitaciones</div>
+        <div style="background:var(--ni-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--ni)">6. Aspirar/barrer toda la casa</div>
+        <div style="background:var(--red-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--red)">7. Fregar: cerámica húmeda · laminado casi seco</div>
+        <div style="background:var(--accent-bg);border-radius:var(--radius-sm);padding:10px 6px;font-size:12px;font-weight:500;color:var(--accent)">8. Cierre: lavandería + gato + reset</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Regla de pisos — lo más importante del apartamento</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">
+    <div class="config-box" style="margin-bottom:0;border-left:3px solid #9ca3af">
+      <h3 style="font-size:14px;margin-bottom:10px">🧱 Cerámica — baños y cocina</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">✓ Mopa húmeda normal<br>✓ Agua abundante sin problema<br>✓ Desinfectante o limpiador cerámico<br>✓ Fregar 1× semana + barrer diario<br>✓ Juntas: limpieza mensual con ácido cítrico</p>
+    </div>
+    <div class="config-box" style="margin-bottom:0;border-left:3px solid var(--amber)">
+      <h3 style="font-size:14px;margin-bottom:10px">🪵 Laminado — sala, comedor y habitaciones</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">⚠️ Mopa CASI SECA — escurrir muy bien<br>⚠️ Producto específico laminado (Bona o similar)<br>⚠️ Nunca agua abundante ni vapor<br>⚠️ Dirección de las lamas siempre<br>⚠️ Si cae agua: secar inmediatamente</p>
+    </div>
+  </div>
+
+  <div class="section-title">Principios anti-acumulación</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">
+    <div class="config-box" style="margin-bottom:0">
+      <h3 style="font-size:14px;margin-bottom:8px">☀️ Mañana · Julieth (8–10 min)</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8">● Airear habitación (ventana 5 min)<br>● Encimera cocina — paño húmedo rápido<br>● Lavar platos del desayuno<br>● Revisar zona de comida del gato</p>
+    </div>
+    <div class="config-box" style="margin-bottom:0">
+      <h3 style="font-size:14px;margin-bottom:8px">☀️ Mañana · Nicolás (5–6 min)</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8">● Hacer la cama<br>● Vaciar bandeja del gato<br>● Cambiar agua del bebedero</p>
+    </div>
+    <div class="config-box" style="margin-bottom:0">
+      <h3 style="font-size:14px;margin-bottom:8px">🌙 Noche · Julieth (10–12 min)</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8">● Limpiar encimera post-cena<br>● Fregar platos o lavavajillas<br>● Reset sala: cojines, mantas, mando<br>● Ropa sucia a la cesta</p>
+    </div>
+    <div class="config-box" style="margin-bottom:0">
+      <h3 style="font-size:14px;margin-bottom:8px">🌙 Noche · Nicolás (5–6 min)</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8">● Escoba rápida en cocina (pelo de gato)<br>● Cerrar cajones y armarios abiertos<br>● Objetos fuera de lugar — a su sitio</p>
+    </div>
+  </div>
+
+  <div class="section-title">Plan mensual — rotación de 4 semanas</div>
+  <div class="block-card">
+    <div style="padding:14px 16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><p style="font-size:13px;font-weight:500;color:var(--ju);margin-bottom:6px">Semana 1</p><p style="font-size:13px;color:var(--text2);line-height:1.7">Interior nevera completo <span class="badge badge-ju">Julieth</span><br>Ventanas exteriores accesibles <span class="badge badge-ni">Nicolás</span></p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--ju);margin-bottom:6px">Semana 2</p><p style="font-size:13px;color:var(--text2);line-height:1.7">Organización de un armario <span class="badge badge-both">Ambos</span><br>Horno o campana (alternando) <span class="badge badge-ju">Julieth</span></p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--ju);margin-bottom:6px">Semana 3</p><p style="font-size:13px;color:var(--text2);line-height:1.7">Colchón: aspirar y rotar <span class="badge badge-both">Ambos</span><br>Juntas del cerámico (baños/cocina) <span class="badge badge-ni">Nicolás</span></p></div>
+        <div><p style="font-size:13px;font-weight:500;color:var(--ju);margin-bottom:6px">Semana 4</p><p style="font-size:13px;color:var(--text2);line-height:1.7">Lavadora y secadora — mantenimiento <span class="badge badge-ni">Nicolás</span><br>Tapicería sofá + textiles sala <span class="badge badge-ju">Julieth</span></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIGURACIÓN -->
+<div id="page-configuracion" class="page">
+  <div class="page-header">
+    <h2>Configuración Supabase</h2>
+    <p>Conecta tu base de datos para guardar el registro de tareas de forma permanente.</p>
+  </div>
+
+  <div class="config-box">
+    <h3>🗄️ Paso 1: Crear proyecto en Supabase</h3>
+    <div style="font-size:13px; color:var(--text2); line-height:1.7;">
+      <p style="margin-bottom:8px;">1. Ve a <strong>supabase.com</strong> y crea una cuenta gratuita.</p>
+      <p style="margin-bottom:8px;">2. Crea un nuevo proyecto (el plan gratuito es suficiente).</p>
+      <p style="margin-bottom:8px;">3. Una vez creado, ve a <strong>Settings → API</strong> y copia:</p>
+      <ul style="margin-left:16px; margin-bottom:8px;">
+        <li>Project URL (termina en .supabase.co)</li>
+        <li>anon public key</li>
+      </ul>
+      <p style="margin-bottom:8px;">4. Ve al <strong>SQL Editor</strong> y ejecuta este script para crear las tablas:</p>
+      <pre style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; font-size:11px; overflow-x:auto; line-height:1.6; margin-top:6px; white-space:pre-wrap;">-- Tabla de tareas completadas
+CREATE TABLE IF NOT EXISTS task_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  task_id text NOT NULL,
+  task_name text NOT NULL,
+  who text NOT NULL,
+  week_date date NOT NULL,
+  completed boolean DEFAULT true,
+  completed_at timestamptz DEFAULT now(),
+  points integer DEFAULT 1
+);
+
+-- Tabla para shopping list (items marcados)
+CREATE TABLE IF NOT EXISTS shopping_checked (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  item_id text UNIQUE NOT NULL,
+  checked_at timestamptz DEFAULT now()
+);
+
+-- Tabla para rutinas diarias
+CREATE TABLE IF NOT EXISTS daily_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  task_id text NOT NULL,
+  who text NOT NULL,
+  log_date date NOT NULL,
+  completed boolean DEFAULT true,
+  UNIQUE(task_id, log_date)
+);
+
+-- Política de acceso público (para demo)
+ALTER TABLE task_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shopping_checked ENABLE ROW LEVEL SECURITY;
+ALTER TABLE daily_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public access task_log" ON task_log FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public access shopping" ON shopping_checked FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public access daily" ON daily_log FOR ALL USING (true) WITH CHECK (true);</pre>
+    </div>
+  </div>
+
+  <div class="config-box">
+    <h3>🔑 Paso 2: Ingresa tus credenciales</h3>
+    <div class="config-row">
+      <div><label>Project URL</label><input type="text" id="sb-url" placeholder="https://xyzabc.supabase.co"></div>
+      <div><label>Anon Public Key</label><input type="password" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5c..."></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:4px;">
+      <button class="btn btn-primary" onclick="connectSupabase()">Conectar</button>
+      <button class="btn btn-outline" onclick="testConnection()">Probar conexión</button>
+    </div>
+    <div class="status-bar" style="margin-top:10px;">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Sin conectar</span>
+    </div>
+  </div>
+
+  <div class="config-box" style="border-color:var(--border2); background: var(--bg);">
+    <h3 style="font-size:13px; color:var(--text3);">⚠️ Nota de seguridad</h3>
+    <p style="font-size:12px; color:var(--text3); line-height:1.6; margin-top:4px;">Esta app usa la anon key de Supabase que está diseñada para ser pública en apps de cliente. Las políticas RLS controlan el acceso. Para uso personal entre Nicolás y Julieth, esto es completamente seguro. No compartas el archivo con personas fuera del hogar.</p>
+  </div>
+</div>
+
+<!-- CRONOGRAMA SEMANAL -->
+<div id="page-cronograma" class="page">
+  <div class="page-header">
+    <h2>Cronograma semanal</h2>
+    <p>Sábados · Julieth hace el bloque de 4h · Nicolás según disponibilidad</p>
+  </div>
+
+  <div class="week-grid" id="week-selector"></div>
+
+  <div id="blocks-container"></div>
+</div>
+
+<!-- CALENDARIO MENSUAL -->
+<div id="page-mensual" class="page">
+  <div class="page-header">
+    <h2>Calendario mensual</h2>
+    <p>Haz clic en cualquier sábado para ver el plan detallado de ese día.</p>
+  </div>
+  <div class="month-header">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <span class="month-title" id="month-title"></span>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; font-size:12px; color:var(--text3);">
+      <span style="display:flex;align-items:center;gap:4px;"><span class="cal-dot cal-dot-ju" style="display:inline-block"></span> Julieth</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span class="cal-dot cal-dot-ni" style="display:inline-block"></span> Nicolás</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span class="cal-dot cal-dot-done" style="display:inline-block"></span> Completada</span>
+    </div>
+  </div>
+  <div class="cal-grid" id="calendar-grid"></div>
+
+  <div class="modal-overlay" id="day-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modal-day-title"></div>
+          <div style="font-size:13px; color:var(--text2); margin-top:2px;" id="modal-day-sub"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RUTINAS DIARIAS -->
+<div id="page-diario" class="page">
+  <div class="page-header">
+    <h2>Rutinas diarias</h2>
+    <p>10–20 minutos por día · Marca quién lo hizo · Se guarda en Supabase</p>
+  </div>
+  <div id="daily-date-display" style="font-size:14px; color:var(--text2); margin-bottom:1rem;"></div>
+  <div id="daily-container"></div>
+  <div style="margin-top:1rem;">
+    <div class="section-title">Tareas rotativas (2–3 veces por semana)</div>
+    <div id="rotativas-container"></div>
+  </div>
+</div>
+
+<!-- REGISTRO -->
+<div id="page-registro" class="page">
+  <div class="page-header">
+    <h2>Registro de tareas</h2>
+    <p>Historial guardado en Supabase · Se actualiza en tiempo real</p>
+  </div>
+  <div class="register-grid">
+    <div class="person-card">
+      <div class="person-header">
+        <div class="person-avatar av-ju">J</div>
+        <div class="person-info">
+          <div class="person-name">Julieth</div>
+          <div class="person-sub">4h sábado + diario</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ju);" id="ju-pts">0</div>
+          <div style="font-size:11px; color:var(--text3);">puntos</div>
+        </div>
+      </div>
+      <div class="person-stats">
+        <div class="ps"><div class="ps-val" style="color:var(--ju);" id="ju-done">0</div><div class="ps-label">completadas</div></div>
+        <div class="ps"><div class="ps-val" id="ju-week">0</div><div class="ps-label">esta semana</div></div>
+        <div class="ps"><div class="ps-val" id="ju-streak">0</div><div class="ps-label">días seguidos</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill pf-ju" id="ju-progress" style="width:0%"></div></div>
+      <div class="task-log" id="ju-log"><div class="log-empty">Sin registros. Conecta Supabase o completa tareas.</div></div>
+    </div>
+    <div class="person-card">
+      <div class="person-header">
+        <div class="person-avatar av-ni">N</div>
+        <div class="person-info">
+          <div class="person-name">Nicolás</div>
+          <div class="person-sub">Tiempo flexible</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'DM Serif Display',serif; font-size:22px; color:var(--ni);" id="ni-pts">0</div>
+          <div style="font-size:11px; color:var(--text3);">puntos</div>
+        </div>
+      </div>
+      <div class="person-stats">
+        <div class="ps"><div class="ps-val" style="color:var(--ni);" id="ni-done">0</div><div class="ps-label">completadas</div></div>
+        <div class="ps"><div class="ps-val" id="ni-week">0</div><div class="ps-label">esta semana</div></div>
+        <div class="ps"><div class="ps-val" id="ni-streak">0</div><div class="ps-label">días seguidos</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill pf-ni" id="ni-progress" style="width:0%"></div></div>
+      <div class="task-log" id="ni-log"><div class="log-empty">Sin registros. Conecta Supabase o completa tareas.</div></div>
+    </div>
+  </div>
+  <div style="margin-top:1rem; text-align:right;">
+    <button class="btn btn-outline btn-sm" onclick="clearWeekLog()">Limpiar semana actual</button>
+  </div>
+</div>
+
+<!-- COMPRAS -->
+<div id="page-compras" class="page">
+  <div class="page-header">
+    <h2>Lista de compras</h2>
+    <p>Todo lo que necesitan para el sistema · Haz clic en las categorías para expandir · Marca lo que ya tienen</p>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <div id="shop-progress" style="font-size:13px;color:var(--text2)"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="uncheckAll()">Desmarcar todo</button>
+      <button class="btn btn-primary btn-sm" onclick="checkAll()">Marcar todo</button>
+    </div>
+  </div>
+  <div class="shop-list" id="shop-container"></div>
+</div>
+
+<!-- GUÍAS -->
+<div id="page-guias" class="page">
+  <div class="page-header">
+    <h2>Guías de limpieza</h2>
+    <p>Protocolos detallados por zona · 3 niveles de profundidad</p>
+  </div>
+  <div id="guias-container"></div>
+</div>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const BLOCKS = [
+  {
+    id:'b1', time:'0:00–0:30', label:'Bloque 1 · Inicio', color:'bt-green', icon:'🚀',
+    tasks:[
+      {id:'t1',name:'Poner lavadora — ropa de cama y toallas',desc:'Primero, trabaja sola mientras hacen el resto',who:'ju',time:'5 min',diff:'easy',pts:1,
+       guide:['Separar sábanas, fundas y toallas','Poner en 40°C con detergente normal','Añadir suavizante si se desea','Poner ciclo normal o rápido']},
+      {id:'t2',name:'Aplicar producto en mampara y sanitarios',desc:'Dejar actuar 10 min — el producto hace el trabajo',who:'ju',time:'5 min',diff:'easy',pts:1,
+       guide:['Spray antical en la mampara de cristal — toda la superficie','Gel desinfectante dentro del sanitario de los 2 baños','Dejar actuar SIN frotar aún','Esto ahorra el 50% del esfuerzo al limpiar']},
+      {id:'t3',name:'Ordenar y despejar todas las zonas',desc:'Cada uno recoge sus cosas rápido',who:'both',time:'10 min',diff:'easy',pts:1,
+       guide:['Ropa sucia a la cesta','Objetos fuera de lugar — a su sitio','Vaciar papeleras de habitaciones','Quitar cosas del suelo para facilitar barrer después']},
+      {id:'t4',name:'Retirar basuras + bolsas nuevas',desc:'Incluye baños, cocina y habitaciones',who:'ni',time:'8 min',diff:'easy',pts:1,
+       guide:['Sacar bolsa de cocina','Sacar bolsas de los 2 baños','Sacar bolsas de habitaciones','Poner bolsas nuevas en todos los cubos']},
+    ]
+  },
+  {
+    id:'b2', time:'0:30–1:15', label:'Bloque 2 · Baños (paralelo)', color:'bt-amber', icon:'🚿',
+    tasks:[
+      {id:'t5',name:'Baño principal — protocolo completo',desc:'Julieth. El producto ya actuó 10 min.',who:'ju',time:'22 min',diff:'med',pts:3,
+       guide:['1. MAMPARA: frotar con esponja el antical que dejaste actuar. Enjuagar. Pasar escurridor de arriba hacia abajo. Secar marco con paño.','2. PAREDES Y AZULEJO: spray multiusos, paño húmedo de arriba abajo. Especial atención a salpicaduras de crema y pasta.','3. ESPEJO: limpiacristales + paño de microfibra en movimiento Z. Nunca circular en espejos grandes.','4. LAVABO: multiusos + esponja suave en toda la superficie. Grifo con limpiacristales — secar para evitar cal.','5. SANITARIO: el interior ya tiene producto. Frotar con cepillo. Limpiar tapa, asiento y exterior con paño exclusivo del sanitario.','6. PUERTA DEL BAÑO: paño húmedo en la puerta y el marco (especialmente la zona de la manija).','7. PISO: barrer primero los rincones. Fregar con fregona y desinfectante — de fondo a la puerta.'],
+       products:['Antical spray','Multiusos','Limpiacristales','Desinfectante','Escurridor mampara','Paño microfibra','Cepillo sanitario','Paño exclusivo sanitario']},
+      {id:'t6',name:'Baño secundario — protocolo completo',desc:'Nicolás. Mismo protocolo en paralelo.',who:'ni',time:'22 min',diff:'med',pts:3,
+       guide:['Mismo orden: mampara → paredes → espejo → lavabo → sanitario → puerta → piso','Si tiene mampara: frotar antical, enjuagar, escurrir, secar marco','Espejo: movimiento en Z con limpiacristales','Sanitario: interior con cepillo, exterior con paño dedicado','Puerta y marcos: paño húmedo con multiusos','Piso cerámico: barrer, luego fregar con desinfectante'],
+       products:['Antical spray','Multiusos','Limpiacristales','Desinfectante','Escurridor','Cepillo sanitario']},
+      {id:'t7',name:'Limpiar ventanas de los baños (interior)',desc:'Al terminar cada baño',who:'both',time:'6 min',diff:'easy',pts:1,
+       guide:['Limpiacristales en el cristal interior','Paño microfibra seco — movimiento en Z','Limpiar el marco con paño húmedo','Si hay persianas: sacudir con paño seco']},
+    ]
+  },
+  {
+    id:'b3', time:'1:15–2:10', label:'Bloque 3 · Cocina + zona lavado', color:'bt-amber', icon:'🍳',
+    tasks:[
+      {id:'t8',name:'Microondas — truco del vapor',desc:'Primero, trabaja solo 3 min',who:'ju',time:'8 min',diff:'easy',pts:1,
+       guide:['Taza con agua + zumo de medio limón o 2 cdas de vinagre','Calentar 3 min al máximo — el vapor afloja todo','Esperar 1 min con la puerta cerrada','Limpiar interior con paño húmedo. Sin esfuerzo.','Limpiar exterior y puerta con multiusos']},
+      {id:'t9',name:'Encimera, fogones y salpicadero',desc:'Desgrasante — dejar actuar 60 seg antes de frotar',who:'ju',time:'12 min',diff:'med',pts:2,
+       guide:['Quitar todo de la encimera','Spray desgrasante en toda la superficie — dejar actuar 60 segundos','Frotar con esponja suave (no estropajo en vitrocerámica)','Fogones de gas: desmontar rejillas, lavar con agua jabonosa','Vitrocerámica: rasqueta específica + limpiador vitro','Salpicadero: paño húmedo con multiusos','Secar encimera con paño limpio seco'],
+       products:['Desgrasante spray','Limpiador vitro','Rasqueta vitro','Esponja doble cara','Paño seco']},
+      {id:'t10',name:'Fregadero, grifo y zona de lavado',desc:'Incluye la zona donde está el lavadero si está en cocina',who:'ni',time:'10 min',diff:'easy',pts:1,
+       guide:['Multiusos + esponja en todo el fregadero y sus bordes','Grifo con limpiacristales — secar para evitar cal','Zona de lavado (pileta/lavadero): desinfectante + esponja','Revisar desagüe — quitar residuos si los hay','Secar grifo con paño seco para que brille']},
+      {id:'t11',name:'Nevera exterior + armarios (exterior)',desc:'Paño húmedo, sin empapar',who:'ju',time:'8 min',diff:'easy',pts:1,
+       guide:['Puertas de nevera: paño húmedo con multiusos','Tiradores: especial atención, se ensucian mucho','Exterior de armarios: paño húmedo ligero','Frente del lavavajillas si tienen','NO mojar en exceso — solo limpiar huellas y salpicaduras']},
+      {id:'t12',name:'Paredes de la cocina (manchas y salpicaduras)',desc:'Solo las zonas con manchas visibles',who:'ni',time:'8 min',diff:'easy',pts:1,
+       guide:['Revisar paredes alrededor de fogones y fregadero','Spray desgrasante en manchas de grasa','Paño húmedo — frotar suavemente sin dañar la pintura','Si hay azulejo: multiusos + paño sin rascar','Secar para evitar marcas de agua']},
+      {id:'t13',name:'Puerta de la cocina + ventana cocina',desc:'Interior de ventana y puerta completa',who:'ju',time:'6 min',diff:'easy',pts:1,
+       guide:['Ventana interior: limpiacristales + paño microfibra','Marco de ventana: paño húmedo','Puerta de cocina ambos lados: multiusos + paño','Manija: desinfectante — es la más tocada del apartamento']},
+      {id:'t14',name:'Piso de la cocina + zona lavado',desc:'Cerámico — se puede usar agua normal',who:'ju',time:'8 min',diff:'easy',pts:1,
+       guide:['Barrer primero (pelo de gato + migas)','Fregar con agua + multiusos o desinfectante','Prestar atención a la zona bajo los fogones y nevera','Piso de la zona de lavado: mismo proceso']},
+    ]
+  },
+  {
+    id:'b4', time:'2:10–3:00', label:'Bloque 4 · Sala, comedor y habitaciones', color:'bt-green', icon:'🛋️',
+    tasks:[
+      {id:'t15',name:'Sala: polvo en muebles, TV y estantes',desc:'Primero seco, luego húmedo',who:'ni',time:'12 min',diff:'easy',pts:1,
+       guide:['Paño de microfibra SECO primero — quita el polvo sin esparcirlo','TV y electrónicos: SOLO paño seco. Nunca spray directo.','Estantes: de arriba hacia abajo, mover objetos (no limpiar alrededor)','Mesa de centro/comedor: paño húmedo con multiusos, secar bien','Rodillo quitapelusas en sofá — el gato tiene sitio fijo en él'],
+       products:['Paño microfibra seco','Paño microfibra húmedo','Rodillo quitapelusas']},
+      {id:'t16',name:'Comedor: mesa y sillas',desc:'Incluye patas y estructura',who:'ju',time:'6 min',diff:'easy',pts:1,
+       guide:['Mesa: multiusos + paño húmedo en toda la superficie','Debajo de la mesa: paño húmedo en el borde inferior','Sillas: asiento + respaldo con paño húmedo','Patas de sillas: paño húmedo — se acumula polvo y pelo de gato']},
+      {id:'t17',name:'Paredes sala/comedor — puntos sucios y puertas',desc:'Marcos de puertas, zonas alrededor de interruptores',who:'ni',time:'8 min',diff:'easy',pts:1,
+       guide:['Revisar paredes a ojo — las manchas visibles','Paño húmedo suavemente en manchas de dedos o roces','Interruptores de luz: paño con desinfectante','Marcos de puertas: paño húmedo en toda la altura','Puertas sala: ambos lados con multiusos, especial la manija']},
+      {id:'t18',name:'Habitación principal: cambiar ropa de cama',desc:'Ya está en la lavadora — poner sábanas limpias',who:'both',time:'10 min',diff:'med',pts:2,
+       guide:['Sacar sábanas secas de la secadora (o tender)','Hacer la cama entre dos: 4 min en vez de 8','Funda de almohadas y edredón — verificar que estén derechos','Airear el colchón 10 min si es posible antes de poner las sábanas']},
+      {id:'t19',name:'Habitaciones 2 y 3: ordenar, polvo y superficies',desc:'Si son de uso u oficina/estudio',who:'ju',time:'10 min',diff:'easy',pts:1,
+       guide:['Despejar superficies primero','Paño seco en muebles y estantes (polvo)','Escritorio o zona de estudio: paño húmedo','Paredes: revisar manchas y limpiar','Puertas de habitación: paño húmedo en ambos lados + manija']},
+      {id:'t20',name:'Ventanas sala y habitaciones (interior)',desc:'Un cristal por habitación',who:'ni',time:'8 min',diff:'easy',pts:1,
+       guide:['Limpiacristales en el cristal interior','Paño microfibra en Z — nunca circular (deja rayas)','Marco: paño húmedo con multiusos','Alféizar interior: paño húmedo','Si hay persianas o estores: aspirar con accesorio o sacudir fuera']},
+    ]
+  },
+  {
+    id:'b5', time:'3:00–3:45', label:'Bloque 5 · Pisos + bandeja gato', color:'bt-red', icon:'🧹',
+    tasks:[
+      {id:'t21',name:'Barrer o aspirar TODO el apartamento',desc:'Empezar por habitaciones, terminar en sala. Base para poder fregar.',who:'ni',time:'20 min',diff:'med',pts:2,
+       guide:['Orden: habitaciones → pasillo → sala/comedor (cocina y baños ya se hicieron en sus bloques)','Especial atención a rincones y rodapiés — el pelo del gato se acumula ahí','Bajo los muebles: aspirar hasta donde llegue','Para laminado (sala/habitaciones): accesorio de cepillo SUAVE en la aspiradora — el cepillo rígido puede rayarlo','Para cerámica (baños/cocina): ya fregados en sus bloques, solo repasar rincones si hace falta','NO usar escoba seca sola en laminado: levanta polvo y puede arañar. Aspirar o barrer húmedo.']},
+      {id:'t22',name:'Fregar piso cerámico — baños y cocina',desc:'Julieth. El cerámico aguanta mopa húmeda normal.',who:'ju',time:'15 min',diff:'easy',pts:2,
+       guide:['Barrer o aspirar primero — nunca fregar sin barrer','Cubo con agua caliente + desinfectante o limpiador cerámico','Mopa húmeda — el cerámico aguanta perfectamente el agua','Empezar desde el fondo de cada zona hacia la puerta','Baños: fregar desde el rincón más lejío a la puerta','Cocina: especial atención bajo los fogones y nevera','Dejar secar 10–15 min antes de pisar'],
+       products:['Mopa + cubo escurridor','Desinfectante / limpiador cerámico']},
+      {id:'t22b',name:'Fregar piso laminado — sala, comedor y habitaciones',desc:'CRÍTICO: mopa CASI SECA. Producto específico laminado.',who:'ju',time:'18 min',diff:'med',pts:3,
+       guide:['REGLA DE ORO: la mopa debe estar casi seca al tacto. Escurrir muy, muy bien.','Usar limpiador ESPECÍFICO para laminado (Bona, Leifheit o similar). NUNCA multiusos genérico.','DIRECCIÓN: seguir siempre las lamas del laminado. Nunca en perpendicular.','Habitaciones: empezar al fondo, terminar en la puerta. Sin pisar lo ya fregado.','Sala y comedor: misma técnica — especial atención bajo la mesa (migas + pelo de gato)','Si cae agua por accidente: secar con paño seco INMEDIATAMENTE','Dejar secar completamente antes de pisar — mínimo 10 min','El laminado no se puede reparar como la madera real: el cuidado es para siempre'],
+       products:['Mopa microfibra plana + cubo escurridor','Limpiador específico laminado (Bona o similar)']},
+      {id:'t23',name:'Bandeja del gato — limpieza profunda semanal',desc:'Vaciar, lavar, desinfectar, arena nueva',who:'ni',time:'12 min',diff:'easy',pts:2,
+       guide:['Vaciar TODA la arena en una bolsa','Lavar la bandeja con agua caliente y jabón neutro','NO usar lejía — el olor repele al gato','Secar bien antes de añadir arena nueva','Añadir arena fresca hasta aprox. 5 cm de profundidad','Limpiar la zona alrededor de la bandeja con paño húmedo'],
+       products:['Jabón neutro','Arena para gato','Bolsa de basura','Paño exclusivo bandeja']},
+      {id:'t24',name:'Rodapiés y rincones toda la casa',desc:'Acumulan pelo y polvo — paño húmedo',who:'ju',time:'8 min',diff:'easy',pts:1,
+       guide:['Paño húmedo en todos los rodapiés del apartamento','Rincones de habitaciones: el pelo del gato se acumula ahí','Hacer después de aspirar, antes de fregar','Prestar atención a los rincones de los baños']},
+    ]
+  },
+  {
+    id:'b6', time:'3:45–4:00', label:'Bloque 6 · Cierre', color:'bt-green', icon:'✅',
+    tasks:[
+      {id:'t25',name:'Pasar lavadora a secadora + poner carga 2',desc:'Ropa de cama lista, ahora la ropa personal',who:'ni',time:'7 min',diff:'easy',pts:1,
+       guide:['Pasar ropa de cama a la secadora','Poner segunda carga: ropa personal','Revisar que no queden prendas delicadas en la carga','Añadir una bola de secadora para mejor resultado']},
+      {id:'t26',name:'Limpiar zona del gato (comida y agua)',desc:'Platos, tapete y zona de agua',who:'ni',time:'5 min',diff:'easy',pts:1,
+       guide:['Lavar los platos del gato con agua caliente y jabón','Cambiar el agua del bebedero — el gato bebe más si está fresca','Paño húmedo en el tapete de comida','Revisar que tenga suficiente arena en la bandeja']},
+      {id:'t27',name:'Doblar y guardar ropa de cama',desc:'La que ya salió de secadora',who:'both',time:'10 min',diff:'easy',pts:1,
+       guide:['Doblar sábanas en L para que encajen bien en el armario','Almohadas: las fundas por dentro','Organizar en el armario de blancos por tipo']},
+      {id:'t28',name:'Reset final del apartamento',desc:'Revisión visual rápida — todo en su lugar',who:'both',time:'8 min',diff:'easy',pts:1,
+       guide:['Paseo visual por cada habitación','Cojines en su lugar, mantas dobladas','Encimera de cocina despejada','Apagar luces, ventanas cerradas','¡Apartamento listo para la semana!']},
+    ]
+  }
+];
+
+const MONTHLY_EXTRA = {
+  1: {label:'Semana 1', tasks:[
+    {id:'m1',name:'Interior de la nevera completo',who:'ju',time:'20 min',pts:3,
+     desc:'Sacar todo, limpiar estantes con agua + bicarbonato, revisar caducidades, reorganizar por zonas de temperatura. Dejar recipiente con bicarbonato para olores. Revisar sellos de la puerta.'},
+    {id:'m2',name:'Ventanas exteriores (si son accesibles)',who:'ni',time:'20 min',pts:2,
+     desc:'Cristal exterior: limpiacristales + paño. Marcos exteriores: paño húmedo. Si hay persiana de cajón: aspirar o paño húmedo en las lamas.'},
+  ]},
+  2: {label:'Semana 2', tasks:[
+    {id:'m3',name:'Organización de un armario',who:'both',time:'30 min',pts:3,
+     desc:'Un armario por mes en rotación. Sin vaciado total: reorganizar, doblar lo desordenado, sacar lo que ya no se usa y separar para donar.'},
+    {id:'m4',name:'Horno o campana extractora (alternando)',who:'ju',time:'25 min',pts:3,
+     desc:'Horno: producto específico, actuar 20–30 min, rasqueta y paño. Campana: filtros al lavavajillas o remojo 30 min con desgrasante. Alternar cada mes.'},
+  ]},
+  3: {label:'Semana 3', tasks:[
+    {id:'m5',name:'Colchón: aspirar y rotar',who:'both',time:'20 min',pts:2,
+     desc:'Aspirar colchón con accesorio tapicería — ambos lados. Rotar el colchón (girar 180°). Lavar fundas de almohada. Airear 30 min mínimo con ventana abierta.'},
+    {id:'m6',name:'Juntas del cerámico (baños y cocina)',who:'ni',time:'20 min',pts:3,
+     desc:'Cepillo específico de juntas + limpiador ácido (ácido cítrico diluido 50g/500ml agua). Dejar actuar 5 min. Frotar y enjuagar. Previene el ennegrecimiento.'},
+  ]},
+  4: {label:'Semana 4', tasks:[
+    {id:'m7',name:'Lavadora y secadora — mantenimiento',who:'ni',time:'10 min',pts:2,
+     desc:'Ciclo de limpieza con pastilla específica o vinagre a 90°. Limpiar filtro de pelusas de la secadora. Limpiar junta de goma de la lavadora con paño. Dejar puerta abierta al terminar.'},
+    {id:'m8',name:'Tapicería profunda: sofá y textiles sala',who:'ju',time:'20 min',pts:2,
+     desc:'Aspirar sofá incluyendo pliegues y bajo los cojines. Lavar fundas de cojines si las tienen. Mantas a la lavadora. Revisar si el sofá tiene manchas puntuales para tratar.'},
+  ]},
+};
+
+const DAILY_TASKS = {
+  ju_morning:[
+    {id:'d1',name:'Airear habitación principal (ventana 5 min)',time:'1 min'},
+    {id:'d2',name:'Encimera de cocina — paño húmedo rápido',time:'2 min'},
+    {id:'d3',name:'Lavar platos del desayuno',time:'5 min'},
+    {id:'d4',name:'Revisar zona de comida del gato',time:'2 min'},
+  ],
+  ju_night:[
+    {id:'d5',name:'Limpiar encimera post-cena',time:'3 min'},
+    {id:'d6',name:'Fregar platos o meter al lavavajillas',time:'5 min'},
+    {id:'d7',name:'Reset sala: cojines, mantas, mando',time:'2 min'},
+    {id:'d8',name:'Ropa sucia a la cesta (nunca al suelo)',time:'1 min'},
+  ],
+  ni_morning:[
+    {id:'d9',name:'Hacer la cama',time:'2 min'},
+    {id:'d10',name:'Vaciar bandeja del gato',time:'3 min'},
+    {id:'d11',name:'Cambiar agua del gato',time:'1 min'},
+  ],
+  ni_night:[
+    {id:'d12',name:'Escoba rápida en cocina (pelo gato + migas)',time:'3 min'},
+    {id:'d13',name:'Cerrar cajones y armarios abiertos',time:'1 min'},
+    {id:'d14',name:'Objetos fuera de lugar — a su sitio',time:'2 min'},
+  ],
+  rotativas:[
+    {id:'r1',name:'Rodillo quitapelusas en sofá',who:'ju',freq:'3× semana',time:'3 min'},
+    {id:'r2',name:'Espejo baño principal rápido',who:'ni',freq:'2× semana',time:'2 min'},
+    {id:'r3',name:'Paño en lavabo del baño (pasta dental)',who:'ju',freq:'3× semana',time:'2 min'},
+    {id:'r4',name:'Escurridor en mampara post-ducha',who:'both',freq:'Cada ducha',time:'30 seg'},
+    {id:'r5',name:'Limpiar entrada y felpudo',who:'both',freq:'2× semana',time:'2 min'},
+    {id:'r6',name:'Cepillar al gato',who:'ni',freq:'3× semana',time:'5 min'},
+  ]
+};
+
+const SHOPPING = [
+  {id:'s1',name:'Antical spray (tipo Viakal o similar)',cat:'Baños',note:'Para mamparas y grifos'},
+  {id:'s2',name:'Multiusos spray (tipo CIF)',cat:'Baños',note:'Lavabo, sanitario exterior, paredes y puertas'},
+  {id:'s3',name:'Gel desinfectante sanitario (WC Pato)',cat:'Baños',note:'Interior de los 2 sanitarios'},
+  {id:'s4',name:'Cepillo para sanitario — 2 unidades',cat:'Baños',note:'Uno por baño'},
+  {id:'s5',name:'Limpiacristales spray',cat:'Baños',note:'Mamparas, espejos y ventanas'},
+  {id:'s6',name:'Escurridor de mampara (silicona)',cat:'Baños',note:'Usar después de CADA ducha — elimina el 90% del trabajo de cal'},
+  {id:'s7',name:'Paños exclusivos para sanitario (color diferenciado)',cat:'Baños',note:'Rojo u otro color — nunca mezclar con otros paños'},
+  {id:'s8',name:'Guantes de goma — 2 pares',cat:'Baños',note:'Uno por baño, nunca mezclar'},
+  {id:'s9',name:'Desgrasante spray (tipo KH7)',cat:'Cocina',note:'Encimera, fogones, salpicadero y paredes cocina'},
+  {id:'s10',name:'Limpiador específico vitrocerámica',cat:'Cocina',note:'Solo si tienen vitro — NUNCA multiusos genérico'},
+  {id:'s11',name:'Rasqueta para vitrocerámica',cat:'Cocina',note:'Indispensable para restos pegados'},
+  {id:'s12',name:'Esponja doble cara — pack',cat:'Cocina',note:'Cambiar cada 2 semanas'},
+  {id:'s13',name:'Pastillas o gel lavavajillas',cat:'Cocina',note:''},
+  {id:'s14',name:'Desengrasante para horno',cat:'Cocina',note:'Uso mensual'},
+  {id:'s15',name:'Bicarbonato de sodio — bolsa grande',cat:'Cocina',note:'Nevera, olores, fregadero y desagüe'},
+  {id:'s16',name:'Spray específico para horno',cat:'Cocina',note:'Limpieza mensual profunda del horno'},
+  {id:'s17',name:'Desinfectante multiusos para suelos cerámicos',cat:'Pisos',note:'Baños y cocina'},
+  {id:'s18',name:'Mopa de microfibra plana + cubo escurridor',cat:'Pisos',note:'Para todos los pisos — escurrir muy bien para el laminado'},
+  {id:'s19',name:'Limpiador específico para laminado (Bona o Leifheit)',cat:'Pisos',note:'NUNCA multiusos genérico en el laminado — lo daña'},
+  {id:'s20',name:'Quitamanchas específico para laminado',cat:'Pisos',note:'Para manchas puntuales resistentes en el laminado'},
+  {id:'s21',name:'Cepillo de juntas cerámico',cat:'Pisos',note:'Limpieza mensual de juntas en baños y cocina'},
+  {id:'s22',name:'Ácido cítrico (500g granel)',cat:'Pisos',note:'Antical natural para juntas y mamparas — más barato que productos de marca'},
+  {id:'s23',name:'Sellador de juntas cerámico',cat:'Pisos',note:'Aplicar cada 6 meses tras limpiar juntas'},
+  {id:'s24',name:'Paños de microfibra — pack 10 o más',cat:'General',note:'La herramienta más usada: polvo, cristales, superficies'},
+  {id:'s25',name:'Aspiradora con accesorio cepillo suave',cat:'General',note:'Para laminado y tapicería — el cepillo rígido raya el laminado'},
+  {id:'s26',name:'Escoba + recogedor',cat:'General',note:''},
+  {id:'s27',name:'Rodillo quitapelusas con recambios',cat:'General',note:'Sofá y ropa — imprescindible con gato'},
+  {id:'s28',name:'Spray desinfectante rápido',cat:'General',note:'Para manijas, interruptores y puertas — lo más contaminado del hogar'},
+  {id:'s29',name:'Magic eraser (borrador melamínico)',cat:'General',note:'Manchas resistentes en paredes pintadas'},
+  {id:'s30',name:'Bolsas de basura — varios tamaños',cat:'General',note:'Cocina grande + papeleras pequeñas para habitaciones y baños'},
+  {id:'s31',name:'Detergente líquido para ropa',cat:'Lavandería',note:'Para colores y blancos'},
+  {id:'s32',name:'Suavizante',cat:'Lavandería',note:''},
+  {id:'s33',name:'Pastillas de limpieza para lavadora',cat:'Lavandería',note:'Uso mensual — higiene del tambor'},
+  {id:'s34',name:'Bolsas de lavado para ropa delicada',cat:'Lavandería',note:''},
+  {id:'s35',name:'Bolas de secadora',cat:'Lavandería',note:'Acortan el tiempo y reducen arrugas'},
+  {id:'s36',name:'Arena aglomerante de calidad',cat:'Gato',note:'La calidad reduce el olor y el trabajo de limpieza'},
+  {id:'s37',name:'Jabón neutro para lavar la bandeja',cat:'Gato',note:'NUNCA lejía — repele al gato'},
+  {id:'s38',name:'Cepillo para gato (FURminator o similar)',cat:'Gato',note:'Cepillar 3×/semana reduce el 60% del pelo en casa'},
+  {id:'s39',name:'Bolsas para arena y residuos del gato',cat:'Gato',note:''},
+  {id:'s40',name:'Vinagre blanco — garrafón',cat:'Especiales',note:'Limpieza lavadora, desodorizar y antical natural'},
+  {id:'s41',name:'Sellador de juntas cerámico',cat:'Especiales',note:'Aplicar cada 6 meses tras limpiar juntas — protege el color'},
+  {id:'s42',name:'Limpiador de acero inoxidable',cat:'Especiales',note:'Si los electrodomésticos son inox'},
+  {id:'s43',name:'Recogemigas de cocina (mini aspirador de mesa)',cat:'Especiales',note:'Muy práctico con gato — elimina pelo y migas de la encimera en segundos'},
+  {id:'s44',name:'Lejía doméstica (pequeño formato)',cat:'Especiales',note:'Solo para goma de mamparas con moho y limpieza muy puntual'},
+];
+
+const GUIDES = [
+  {id:'g_bano',icon:'🚿',bg:'#EFF6FF',name:'Baños completos (×2)',sub:'Mamparas, sanitarios, lavabos, espejos, paredes, azulejos, puertas, ventanas y piso cerámico',
+  levels:{
+    rapido:{time:'8 min por baño',products:['Desinfectante','Limpiacristales','Escurridor mampara','Paño microfibra'],
+    steps:['Escurridor rápido en mampara — quita el agua post-ducha','Limpiacristales en espejo — paño en Z','Paño con multiusos en lavabo y grifo — secar grifo','Gel en sanitario + cepillo rápido interior — paño en tapa y asiento','Desinfectante en manija y puerta','Escoba rápida en piso si hace falta']},
+    normal:{time:'20–22 min por baño',products:['Antical spray','Multiusos spray','Limpiacristales','Desinfectante','Escurridor mampara','Paño microfibra','Esponja suave','Cepillo sanitario','Paño exclusivo sanitario','Fregona + cubo'],
+    steps:['ANTES DE EMPEZAR: aplicar spray antical en mampara — dejar actuar 5–10 min mientras limpias el resto','PAREDES Y AZULEJO: multiusos spray + paño húmedo de arriba hacia abajo. Salpicaduras de pasta de dientes, crema y jabón.','ESPEJO: limpiacristales + paño microfibra. Movimiento en Z de arriba abajo. Nunca circular — deja rayas.','LAVABO: multiusos + esponja suave en toda la superficie. Desagüe: paño húmedo. Grifo: limpiacristales y secar para evitar cal.','SANITARIO INTERIOR: el gel que pusiste ya actuó. Frotar con cepillo. Bajo el borde interior también.','SANITARIO EXTERIOR: tapa, asiento y toda la parte exterior con paño EXCLUSIVO del sanitario. No reutilizar este paño en otra zona.','VOLVER A LA MAMPARA: frotar con esponja, enjuagar con la alcachofa de arriba abajo, escurrir en pasadas verticales, secar el marco metálico.','PUERTA: ambos lados de arriba abajo con multiusos + paño. Manija con desinfectante. Marco de la puerta con paño húmedo.','VENTANA INTERIOR: limpiacristales + paño en Z. Marco y alféizar con paño húmedo.','PISO CERÁMICO: barrer rincones con cepillo o escoba. Fregar con mopa húmeda + desinfectante, de fondo a la puerta. Secar 10–15 min.']},
+    profundo:{time:'35 min por baño',products:['Ácido cítrico diluido','Vinagre blanco','Lejía muy diluida (1:10)','Cepillo de juntas','Cepillo de dientes viejo','Papel aluminio','Guantes de goma'],
+    steps:['Todo lo del modo normal, más:','MAMPARA — CAL EN BISAGRAS Y MARCO: ácido cítrico diluido con trapo, dejar actuar 10 min. Para sarro muy incrustado: papel de aluminio mojado en vinagre, frotar — no raya el cristal.','JUNTAS DE AZULEJO: cepillo de juntas (o cepillo de dientes) + ácido cítrico diluido. Dejar actuar 5 min, frotar con fuerza, enjuagar bien. Mensual.','GOMA DE LA MAMPARA: revisar moho negro en los pliegues. Paño con lejía muy diluida (1 parte lejía : 10 agua), dejar 5 min, enjuagar abundantemente.','ALCACHOFA DE DUCHA: si tiene cal, desmontar y sumergir en vinagre o ácido cítrico 15–30 min. Enjuagar y volver a montar.','DETRÁS Y DEBAJO DEL SANITARIO: guantes + paño con desinfectante. Zona permanentemente ignorada que acumula bacterias.','EXTRACTOR DE VENTILACIÓN: paño húmedo o aspiradora pequeña. Acumula polvo y pierde eficiencia.','PAREDES HASTA EL TECHO: revisar y limpiar manchas de humedad o moho en esquinas superiores con lejía diluida.']},
+  },tip:'La rutina de 30 segundos más valiosa: escurridor en la mampara después de CADA ducha. Sin excepción. Elimina el 90% del trabajo semanal de cal.'},
+
+  {id:'g_cocina',icon:'🍳',bg:'#FFF7ED',name:'Cocina + zona de lavado',sub:'Encimera, fogones, microondas, nevera, fregadero, paredes, armarios, puerta, ventana y piso cerámico',
+  levels:{
+    rapido:{time:'10 min',products:['Paño húmedo','Lavavajillas líquido','Escoba'],
+    steps:['Paño húmedo con unas gotas de lavavajillas en encimera — secar','Paño húmedo en fogones si hay restos frescos (frescos se quitan fácil)','Lavar los platos del fregadero','Escoba rápida en el piso — pelo de gato y migas']},
+    normal:{time:'50–55 min',products:['Desgrasante spray','Limpiador vitro + rasqueta','Multiusos spray','Limpiacristales','Desinfectante cerámico','Esponja doble cara','Paños microfibra','Mopa + cubo'],
+    steps:['MICROONDAS: taza con agua + zumo de medio limón, 3 min al máximo. Esperar 1 min con puerta cerrada. El vapor afloja todo — limpiar sin esfuerzo.','ENCIMERA: spray desgrasante, dejar actuar 60 segundos (el tiempo de contacto es clave), frotar con esponja suave, secar con paño limpio.','FOGONES DE GAS: desmontar rejillas, lavar con agua jabonosa. Zona bajo las rejillas: desgrasante + esponja.','VITROCERÁMICA: rasqueta específica para restos pegados, luego limpiador vitro. Nunca estropajo verde.','SALPICADERO: paño húmedo con multiusos de arriba abajo.','FREGADERO: multiusos + esponja en toda la superficie y bordes. Desagüe: paño húmedo.','GRIFO: limpiacristales para el brillo. Secar completamente para evitar manchas de cal.','ZONA DE LAVADO / PILETA: desinfectante + esponja. Revisar y limpiar el desagüe si hay residuos.','NEVERA EXTERIOR: paño húmedo con multiusos en puertas y tiradores. Exterior de armarios: paño húmedo ligero.','PAREDES DE LA COCINA: desgrasante spray en manchas de grasa (especialmente alrededor de fogones), dejar 1 min, paño húmedo.','PUERTA DE COCINA: ambos lados con multiusos + paño. Manija con desinfectante.','VENTANA COCINA (interior): limpiacristales + paño en Z. Marco y alféizar con paño húmedo.','PISO CERÁMICO: barrer/aspirar primero. Fregar con mopa húmeda + desinfectante cerámico de fondo a la puerta.']},
+    profundo:{time:'75–80 min',products:['Spray específico horno','Bicarbonato','Vinagre blanco','Ácido cítrico','Cepillo de juntas','Desgrasante fuerte'],
+    steps:['Todo lo del modo normal, más:','INTERIOR NEVERA: sacar todo, limpiar estantes con agua + bicarbonato. Revisar caducidades. Dejar recipiente con bicarbonato para olores. Revisar sellos de la puerta.','HORNO: spray específico para horno, dejar actuar 20–30 min. Rasqueta + paño. Si tiene autolimpieza, usarla. Limpieza manual cada 2–3 meses.','CAMPANA EXTRACTORA: filtros metálicos al lavavajillas o remojo 30 min en agua caliente + desgrasante. Limpiar el exterior de la campana.','INTERIOR ARMARIOS: uno por mes en rotación. Vaciar, paño húmedo, reorganizar, revisar caducidades de los que tienen comida.','DESAGÜE FREGADERO: bicarbonato + vinagre blanco — reacción que desodoriza y desincrustad. Dejar 10 min, enjuagar con agua caliente.','BAJO LA NEVERA Y LAVAVAJILLAS: mover si es posible y limpiar esa zona acumuladora de polvo y pelo.','JUNTAS DEL CERÁMICO (mensual): ácido cítrico + cepillo de juntas. Actuar 5 min, frotar, enjuagar. Previene el ennegrecimiento.']},
+  },tip:'La clave de la cocina: el desgrasante NECESITA tiempo de contacto. 60 segundos esperando = frotar sin esfuerzo. Aplicar y dejar actuar, no frotar inmediatamente.'},
+
+  {id:'g_sala',icon:'🛋️',bg:'#F0FDF4',name:'Sala y comedor',sub:'Sofá, muebles, TV, mesa comedor, sillas, paredes, puertas, ventanas y piso laminado',
+  levels:{
+    rapido:{time:'8 min',products:['Rodillo quitapelusas','Paño microfibra seco'],
+    steps:['Rodillo quitapelusas en sofá (zonas del gato)','Paño seco en TV y mesa de centro','Cojines y mantas en su lugar']},
+    normal:{time:'28 min',products:['Rodillo quitapelusas','Paño microfibra seco','Paño microfibra húmedo','Multiusos','Limpiacristales','Aspiradora cepillo suave','Limpiador laminado','Mopa muy escurrida'],
+    steps:['SOFÁ: rodillo quitapelusas en toda la superficie. Paño húmedo para manchas puntuales. El pelo del gato se concentra en sus zonas favoritas.','MUEBLES Y ESTANTES: paño microfibra SECO primero (quita el polvo sin esparcirlo). Luego paño ligeramente húmedo si hay suciedad.','TV Y ELECTRÓNICOS: SOLO paño seco. Nunca spray directo — daña pantallas y circuitos.','MESA DE COMEDOR: multiusos + paño húmedo en toda la superficie y bordes. Bajo la mesa también (salpicaduras).','SILLAS: asiento + respaldo + patas con paño húmedo. El gato sube y deja pelo.','PAREDES Y MARCOS: paño húmedo muy escurrido en manchas de dedos. Interruptores con desinfectante.','PUERTAS: ambos lados con multiusos + paño. Manija con desinfectante. Marco de la puerta.','VENTANAS (interior): limpiacristales + paño en Z. Marco y alféizar con paño húmedo.','PISO LAMINADO: aspirar con cepillo suave siguiendo la dirección de las lamas. Fregar con mopa CASI SECA + limpiador específico laminado. Seguir dirección de las lamas.']},
+    profundo:{time:'45 min',products:['Aspiradora accesorio tapicería','Limpiador laminado','Magic eraser','Paño húmedo'],
+    steps:['Todo lo del modo normal, más:','SOFÁ PROFUNDO: aspirar con accesorio de tapicería incluyendo pliegues, bajo los cojines y las costuras. Lavar fundas de cojines si las tienen.','BAJO LOS MUEBLES: mover sofá, mesa y sillas. Aspirar completamente — el pelo del gato se acumula masivamente ahí.','RODAPIÉS COMPLETOS: paño húmedo en todos los rodapiés de la zona sala y comedor.','VENTANAS EXTERIORES (si accesibles): limpiacristales en cristal exterior + paño. Marco exterior con paño húmedo.','MANCHAS EN PAREDES: magic eraser para manchas resistentes en paredes pintadas. Frotar suave, sin agua extra.','LAMINADO PROFUNDO: mover muebles ligeros y limpiar debajo. Manchas puntuales con quitamanchas específico laminado (solo en la mancha).']},
+  },tip:'Con gato: aspirar el laminado de la sala 2–3 veces por semana es más eficiente que fregar. El pelo se ve mucho sobre el laminado y se puede aspirar en 3 minutos.'},
+
+  {id:'g_habitaciones',icon:'🛏️',bg:'#FDF4FF',name:'Habitaciones (×3)',sub:'Cama, colchón, armarios, mesitas, superficies, paredes, puertas, ventanas y piso laminado',
+  levels:{
+    rapido:{time:'5 min por habitación',products:['Paño microfibra seco'],
+    steps:['Hacer la cama (o arreglarla si ya estaba hecha)','Paño seco en mesita de noche','Ropa sucia a la cesta (si hay alguna en el suelo)']},
+    normal:{time:'15 min por habitación',products:['Paño microfibra seco','Paño microfibra húmedo','Limpiacristales','Desinfectante','Aspiradora cepillo suave','Limpiador laminado','Mopa muy escurrida'],
+    steps:['AIREAR: abrir ventana 5–10 min antes de empezar. Reduce el polvo en suspensión al limpiar.','CAMA: cambiar sábanas semanalmente. Con gato que suba a la cama: obligatorio cada 7 días. Hacer la cama entre dos: 4 min en vez de 8.','MESITAS DE NOCHE: paño seco para el polvo, luego paño ligeramente húmedo. Spray: siempre en el paño, nunca directo en la superficie.','MUEBLES Y SUPERFICIES: paño microfibra seco de arriba hacia abajo en todo. Luego húmedo ligeramente si hay suciedad.','ESPEJO (si hay): limpiacristales + paño en Z.','ARMARIO EXTERIOR: paño húmedo en la superficie frontal. Manija con desinfectante.','PAREDES: revisar manchas a ojo y limpiar con paño húmedo muy escurrido (paredes pintadas se dañan con exceso de agua).','PUERTA: ambos lados de arriba abajo con multiusos + paño. Manija con desinfectante. Marco.','VENTANA INTERIOR: limpiacristales + paño en Z. Marco y alféizar con paño húmedo.','PISO LAMINADO: aspirar con cepillo suave (especial atención a rincones y rodapiés donde se acumula el pelo). Fregar con mopa CASI SECA + limpiador laminado siguiendo las lamas.']},
+    profundo:{time:'25–30 min por habitación',products:['Aspiradora accesorio tapicería','Magic eraser','Paño húmedo','Limpiador laminado'],
+    steps:['Todo lo del modo normal, más:','COLCHÓN (mensual): aspirar con accesorio de tapicería en ambos lados. Rotar 180°. Lavar fundas de almohada. Airear 30 min con ventana abierta.','BAJO LA CAMA: aspirar completamente — la mayor acumulación de pelo de gato y polvo del apartamento.','INTERIOR DEL ARMARIO (mensual, en rotación): reorganizar, doblar lo desordenado, sacar lo que ya no se usa.','PARTE SUPERIOR DE ARMARIOS: paño húmedo — acumula polvo que luego cae cuando se abre la puerta.','RODAPIÉS COMPLETOS: paño húmedo en todos los rodapiés de la habitación.','MANCHAS EN PAREDES: magic eraser para manchas resistentes. Frotar suave sin agua extra.','LAMINADO PROFUNDO: mover muebles ligeros y limpiar debajo.']},
+  },tip:'Con gato: el pelo se acumula principalmente bajo la cama y en los rodapiés. Aspirar esas dos zonas 2–3 veces por semana tarda 2 minutos y mantiene el polvo completamente bajo control.'},
+
+  {id:'g_pisos',icon:'🏠',bg:'#FFFBEB',name:'Pisos — laminado y cerámico',sub:'Dos materiales, dos protocolos completamente distintos. El laminado no perdona el agua.',
+  levels:{
+    rapido:{time:'5 min',products:['Aspiradora cepillo suave','Escoba'],
+    steps:['LAMINADO: aspirar con cepillo suave. Solo si hay suciedad puntual: paño casi seco con limpiador laminado directamente en esa zona.','CERÁMICO: barrer o aspirar. No hace falta fregar si no está visiblemente sucio.']},
+    normal:{time:'35–40 min total',products:['Aspiradora cepillo suave','Mopa laminado muy escurrida','Limpiador específico laminado','Mopa cerámica','Desinfectante cerámico','Cubo escurridor'],
+    steps:['REGLA UNIVERSAL: aspirar o barrer SIEMPRE antes de fregar. Sin excepción. El polvo + agua = barro que raya el laminado.','LAMINADO (sala, comedor, habitaciones): aspirar con cepillo suave toda la zona. Mopa CASI SECA con limpiador específico laminado. Seguir siempre la dirección de las lamas. Empezar al fondo de cada habitación y avanzar hacia la puerta. No pisar hasta secar completamente (10–15 min).','CERÁMICO (baños y cocina): se frega en sus bloques respectivos. Aquí solo un repaso si hace falta. Mopa húmeda normal + desinfectante. De fondo a la puerta.','RODAPIÉS: paño húmedo en rodapiés de toda la casa antes de fregar.','BAJO LOS MUEBLES: aspirar hasta donde llegue el accesorio.']},
+    profundo:{time:'50–60 min total',products:['Quitamanchas laminado','Ácido cítrico','Cepillo de juntas','Sellador juntas (semestral)'],
+    steps:['LAMINADO PROFUNDO: mover muebles ligeros para limpiar debajo. Manchas puntuales con quitamanchas específico laminado — solo en la mancha, no en toda la superficie. Revisar si hay tablas levantadas o hinchadas — señal de daño irreversible por agua.','CERÁMICO PROFUNDO — JUNTAS (mensual): ácido cítrico diluido (50g/500ml agua) + cepillo de juntas. Actuar 5 min, frotar, enjuagar abundantemente. Previene el ennegrecimiento permanente de las juntas.','SELLADOR DE JUNTAS (semestral): tras limpiar las juntas a fondo, aplicar sellador. Protege el color y evita la acumulación de suciedad.','BAJO NEVERA, LAVAVAJILLAS Y ELECTRODOMÉSTICOS: mover si es posible, limpiar esa zona acumuladora de polvo y pelo.','RINCONES DE TODA LA CASA: paño húmedo en esquinas donde el aspirador no llega bien.']},
+  },tip:'La regla de oro del laminado: si la mopa gotea, está demasiado húmeda. Una sola inundación accidental puede hinchar las tablas de forma IRREVERSIBLE. Mopa casi seca no es sugerencia — es la única forma correcta.'},
+
+  {id:'g_paredes',icon:'🧱',bg:'#FFF1F2',name:'Paredes, puertas y ventanas',sub:'Toda la casa — pintadas, azulejo, cristales, marcos, rodapiés y manijas',
+  levels:{
+    rapido:{time:'5 min',products:['Paño húmedo','Desinfectante'],
+    steps:['Revisar paredes a ojo — solo manchas visibles','Paño húmedo en manchas puntuales de dedos o roces','Manijas de TODAS las puertas: paño con desinfectante — son las superficies más contaminadas del hogar']},
+    normal:{time:'20–25 min',products:['Multiusos spray','Paño húmedo muy escurrido','Desinfectante','Limpiacristales','Paño microfibra'],
+    steps:['PAREDES PINTADAS: paño MUY escurrido — el exceso de agua daña la pintura. Manchas de dedos en zonas de paso (junto a manijas, esquinas del pasillo).','PAREDES CERÁMICAS (baños y cocina): multiusos spray + paño húmedo de arriba abajo. Juntas incluidas.','INTERRUPTORES Y ENCHUFES: paño con desinfectante — los más tocados del hogar y los menos limpiados.','PUERTAS (todas): ambos lados de arriba abajo con multiusos + paño. Especial la manija y el área de 30cm alrededor. Marco de la puerta.','RODAPIÉS: paño húmedo en toda la longitud de todos los rodapiés — acumulan pelo de gato y polvo.','VENTANAS — CRISTAL INTERIOR: limpiacristales + paño microfibra en Z. Marco y alféizar interior con paño húmedo.']},
+    profundo:{time:'35–40 min',products:['Magic eraser','Paño húmedo','Multiusos','Limpiacristales','Aspiradora accesorio'],
+    steps:['TODA LA ALTURA DE LAS PAREDES: revisar con luz directa o linterna. Las manchas altas se ignoran durante meses.','DETRÁS DE LAS PUERTAS: zona permanentemente ignorada. Limpiar con paño húmedo toda la superficie.','PAREDES DEL PASILLO: zona de mucho roce con hombros, manos y bultos — limpiar toda la longitud.','MANCHAS RESISTENTES EN PAREDES PINTADAS: magic eraser — frotar suave, sin agua extra. No usar en papeles pintados o pinturas satinadas delicadas.','VENTANAS EXTERIORES (si accesibles): limpiacristales en cristal exterior + paño. Marco exterior con paño húmedo.','PERSIANAS O ESTORES: aspirar con accesorio suave las lamas, o sacudir fuera. Lamas individuales: paño húmedo lama por lama.','PARTE SUPERIOR DE MARCOS DE PUERTAS: se acumula polvo que cae al pasar y que casi nadie limpia.']},
+  },tip:'La manija de puerta es la superficie más tocada y menos limpiada del hogar. Desinfectarlas tarda 10 segundos cada una y tiene el mayor impacto higiénico por unidad de tiempo.'},
+
+  {id:'g_mampara',icon:'🪟',bg:'#EFF6FF',name:'Mamparas de cristal (×2)',sub:'El elemento con mayor retorno de inversión de tiempo en los baños',
+  levels:{
+    rapido:{time:'3 min',products:['Antical spray','Esponja suave','Escurridor'],
+    steps:['Spray antical, esperar 2 min sin hacer nada más','Frotar con esponja suave de arriba abajo','Enjuagar con la alcachofa de la ducha','Pasar escurridor de arriba abajo — elimina el agua residual']},
+    normal:{time:'10 min',products:['Antical spray','Esponja suave','Escurridor','Paño seco'],
+    steps:['Spray antical en TODA la mampara — incluidos lados y parte baja — dejar actuar 5–10 min','Frotar con esponja empezando por arriba, bajando por los laterales, terminando abajo','Prestar atención a la "línea de agua" — la raya horizontal de cal que se forma a media altura','Enjuagar bien con la alcachofa, de arriba abajo','Escurrir en pasadas verticales de arriba abajo — sin dejar gotas','Secar el marco metálico y las bisagras con paño seco — ahí se forma la cal del marco']},
+    profundo:{time:'20–25 min',products:['Ácido cítrico diluido','Vinagre blanco','Lejía muy diluida (1:10)','Cepillo de dientes viejo','Papel de aluminio','Guantes de goma'],
+    steps:['BISAGRAS Y MARCO CON CAL: ácido cítrico diluido con trapo, dejar actuar 10 min. Frotar con cepillo de dientes en las juntas.','SARRO MUY INCRUSTADO EN CRISTAL: papel de aluminio humedecido en vinagre blanco, frotar suavemente — no raya el cristal.','GOMA DEL BORDE: buscar moho negro en los pliegues de la goma. Paño con lejía muy diluida (1:10), dejar 5 min, enjuagar abundantemente.','JUNTA ENTRE MAMPARA Y PARED: cepillo de dientes + ácido cítrico. Actuar 5 min, frotar, enjuagar.','ALCACHOFA DE DUCHA: si tiene cal visible, desmontar y sumergir en vinagre o ácido cítrico 15–30 min. Enjuagar y volver a montar.']},
+  },tip:'La rutina que cambia todo: escurridor en la mampara después de CADA ducha (30 segundos). Sin excepción. Esta sola acción elimina el 90% del trabajo semanal.'},
+
+  {id:'g_gato',icon:'🐱',bg:'#F0FDF4',name:'Zona del gato',sub:'Bandeja, comida, agua, pelo y control en toda la casa',
+  levels:{
+    rapido:{time:'5 min diarios',products:['Palita bandeja','Jabón neutro'],
+    steps:['Vaciar sólidos de la bandeja con palita — esto es DIARIO (mañana y noche idealmente)','Cambiar el agua del bebedero — el gato bebe más si está fresca','Limpiar platos de comida con agua caliente y jabón','Paño húmedo rápido en el tapete de comida']},
+    normal:{time:'15–20 min semanal',products:['Jabón neutro','Arena aglomerante','Bolsa de basura','Aspiradora accesorio tapicería','Rodillo quitapelusas'],
+    steps:['BANDEJA COMPLETA: vaciar toda la arena en una bolsa. Lavar con agua caliente + jabón neutro. NUNCA lejía — repele al gato y puede ser tóxica. Secar bien. Añadir arena fresca hasta 5 cm de profundidad.','ZONA DE COMIDA Y AGUA: lavar platos con agua caliente + jabón. Cambiar el agua. Paño húmedo en tapete y zona alrededor.','CAMA Y RASCADOR: aspirar con accesorio de tapicería el rascador y la cama del gato.','CONTROL DE PELO EN SOFÁ: rodillo quitapelusas en toda la superficie del sofá, especialmente las zonas favoritas del gato.','CONTROL DE PELO EN RINCONES: aspirar los rincones de habitaciones y rodapiés donde más se acumula el pelo.']},
+    profundo:{time:'30 min mensual',products:['Jabón neutro','Cepillo FURminator','Aspiradora accesorio tapicería'],
+    steps:['BANDEJA PROFUNDA: además de la limpieza normal, revisar si hay manchas o residuos en las paredes de la bandeja. Secar completamente antes de añadir arena.','CAMA DEL GATO: lavar en lavadora a 40°C. Comprobar que seque bien antes de devolver al gato.','RASCADOR: revisar si está desgastado. Aspirar a fondo entre las fibras — usa el accesorio angosto.','JUGUETES: lavar los de tela en lavadora. Los de plástico con agua caliente + jabón.','CEPILLADO PROFUNDO: sesión larga con cepillo tipo FURminator para eliminar pelo muerto — después de esta sesión, el gato no suelta pelo durante días.','REVISAR BAJO MUEBLES: el gato deja pelo y suciedad en zonas muy ocultas — aspirar debajo del sofá, cama y armarios.']},
+  },tip:'Cepillar al gato 3 veces por semana reduce el pelo en casa en un 60%. Es la acción más efectiva que existe — más que cualquier cantidad de limpieza reactiva.'},
+
+  {id:'g_lavanderia',icon:'👕',bg:'#FFF7ED',name:'Lavandería y textiles',sub:'Lavadora, secadora, ropa de cama, toallas y ropa personal',
+  levels:{
+    rapido:{time:'2 min',products:['Detergente'],
+    steps:['Revisar que no haya ropa acumulada fuera de la cesta — a la cesta siempre','Lanzar una carga si la cesta está llena (5 min de carga, la lavadora hace el trabajo)']},
+    normal:{time:'Integrado en el sábado',products:['Detergente líquido','Suavizante','Bolas de secadora'],
+    steps:['CARGA 1 (inicio del bloque semanal): sábanas + toallas a 40°C con detergente. La lavadora trabaja sola mientras limpian.','CARGA 2 (a mitad del bloque): ropa personal de la semana. Revisar que no haya prendas delicadas sin bolsa de lavado.','SECADORA: pasar carga 1 en cuanto termine. Limpiar el filtro de pelusas ANTES de cada ciclo.','DOBLAR Y GUARDAR: al terminar el bloque. Sábanas dobladas en L para que encajen en el armario. Ropa doblada y guardada inmediatamente.','CESTA: dejar completamente vacía para la semana siguiente — señal visual de que el ciclo está completo.']},
+    profundo:{time:'20 min mensual',products:['Pastilla limpieza lavadora o vinagre blanco','Lejía diluida','Paño húmedo'],
+    steps:['TAMBOR DE LA LAVADORA: ciclo de limpieza con pastilla específica o 500ml de vinagre blanco a 90°. Deja el tambor desodorizado y libre de bacterias.','JUNTA DE GOMA DE LA LAVADORA: inspeccionar moho negro en los pliegues de la goma interior. Limpiar con paño + lejía diluida. IMPORTANTE: dejar siempre la puerta abierta después de cada uso.','FILTRO DE BOMBEO: limpiar el filtro de la lavadora (abajo del panel frontal). Acumula monedas, hilos y suciedad — si está obstruido, la lavadora trabaja peor.','FILTRO DE PELUSAS SECADORA: limpiar a fondo con el aspirador, no solo pasar el dedo. Un filtro limpio = secado más rápido y menos consumo.','EXTERIOR DE AMBOS APARATOS: paño húmedo con multiusos en toda la superficie.']},
+  },tip:'La regla de la ropa: nunca al suelo. La cesta siempre. Si la cesta se llena antes del sábado, lanzar una carga entre semana — 5 minutos de trabajo, la lavadora hace el resto.'},
+];
+
+// ===================== STATE =====================
+let supabase_client = null;
+let currentWeek = getWeekStart(new Date());
+let currentMonth = new Date();
+let completedTasks = JSON.parse(localStorage.getItem('completed_tasks') || '{}');
+let completedDaily = JSON.parse(localStorage.getItem('completed_daily') || '{}');
+let shoppingChecked = JSON.parse(localStorage.getItem('shopping_checked') || '{}');
+let taskLog = JSON.parse(localStorage.getItem('task_log') || '[]');
+
+function getWeekStart(d) {
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+function fmtDate(d) { return d.toISOString().split('T')[0]; }
+function todayStr() { return fmtDate(new Date()); }
+
+// ===================== SUPABASE =====================
+function connectSupabase() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  if (!url || !key) { showToast('Ingresa URL y Key de Supabase'); return; }
+  try {
+    supabase_client = window.supabase.createClient(url, key);
+    localStorage.setItem('sb_url', url);
+    localStorage.setItem('sb_key', key);
+    setStatus('connecting','Conectando...');
+    testConnection();
+  } catch(e) { setStatus('error','Error al crear cliente: ' + e.message); }
+}
+async function testConnection() {
+  if (!supabase_client) { showToast('Primero conecta Supabase'); return; }
+  try {
+    const {error} = await supabase_client.from('task_log').select('id').limit(1);
+    if (error) { setStatus('error', 'Error: ' + error.message); return; }
+    setStatus('ok','✓ Conectado correctamente');
+    loadFromSupabase();
+  } catch(e) { setStatus('error','Error de conexión: ' + e.message); }
+}
+function setStatus(state, msg) {
+  const cls = 'status-dot ' + (state==='ok'?'dot-green':state==='connecting'?'dot-gray':'dot-red');
+  ['status-dot','status-dot-home','status-dot-top'].forEach(id => { const el=document.getElementById(id); if(el) el.className=cls; });
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  if (dot) { dot.className = cls; }
+  if (txt) txt.textContent = msg;
+  const dotH = document.getElementById('status-dot-home');
+  const txtH = document.getElementById('status-text-home');
+  if (dotH) { dotH.className = 'status-dot ' + (state==='ok'?'dot-green':state==='connecting'?'dot-gray':'dot-red'); }
+  if (txtH) txtH.textContent = state==='ok' ? '✓ Supabase conectado — datos sincronizados' : msg;
+}
+async function loadFromSupabase() {
+  if (!supabase_client) return;
+  try {
+    const weekStart = fmtDate(currentWeek);
+    const {data:logs} = await supabase_client.from('task_log').select('*').gte('week_date', weekStart).order('completed_at',{ascending:false});
+    if (logs) {
+      logs.forEach(l => { completedTasks[l.task_id] = {who:l.who,name:l.task_name,pts:l.points,time:l.completed_at}; });
+      taskLog = logs.map(l => ({id:l.task_id,name:l.task_name,who:l.who,pts:l.points,time:l.completed_at}));
+      localStorage.setItem('task_log', JSON.stringify(taskLog));
+    }
+    const {data:shop} = await supabase_client.from('shopping_checked').select('item_id');
+    if (shop) { shop.forEach(s => { shoppingChecked[s.item_id] = true; }); }
+    const {data:daily} = await supabase_client.from('daily_log').select('*').eq('log_date', todayStr());
+    if (daily) { daily.forEach(d => { completedDaily[d.task_id] = true; }); }
+    updateAll();
+  } catch(e) { console.error('Supabase load error:', e); }
+}
+async function saveTaskToSupabase(taskId, taskName, who, pts) {
+  if (!supabase_client) return;
+  try {
+    await supabase_client.from('task_log').insert({task_id:taskId, task_name:taskName, who:who, week_date:fmtDate(currentWeek), points:pts});
+  } catch(e) { console.error('Save error:', e); }
+}
+async function deleteTaskFromSupabase(taskId) {
+  if (!supabase_client) return;
+  try {
+    await supabase_client.from('task_log').delete().eq('task_id', taskId).eq('week_date', fmtDate(currentWeek));
+  } catch(e) { console.error('Delete error:', e); }
+}
+
+// ===================== NAV =====================
+const PAGE_TITLES = {
+  sistema:'Sistema completo', configuracion:'Configuración',
+  cronograma:'Cronograma semanal', mensual:'Calendario mensual',
+  diario:'Rutinas diarias', registro:'Mi registro',
+  compras:'Lista de compras', guias:'Guías de limpieza'
+};
+function nav(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(item => {
+    if (item.getAttribute('onclick')&&item.getAttribute('onclick').includes("'"+id+"'")) item.classList.add('active');
+  });
+  // Update topbar section name
+  const tb = document.getElementById('topbar-section');
+  if (tb) tb.textContent = PAGE_TITLES[id] || '';
+  // Close mobile sidebar
+  closeMobileMenu();
+  // Render page
+  if (id==='cronograma') renderCronograma();
+  if (id==='mensual') renderCalendar();
+  if (id==='diario') renderDaily();
+  if (id==='registro') renderRegistro();
+  if (id==='compras') renderShop();
+  if (id==='guias') renderGuias();
+}
+
+// ===================== CRONOGRAMA =====================
+function renderWeekSelector() {
+  const container = document.getElementById('week-selector');
+  if (!container) return;
+  const weeks = [];
+  for (let i = -1; i <= 2; i++) {
+    const d = new Date(currentWeek);
+    d.setDate(d.getDate() + i * 7);
+    weeks.push(new Date(d));
+  }
+  container.innerHTML = weeks.map((d, i) => {
+    const sat = new Date(d); sat.setDate(sat.getDate() + 5);
+    const isActive = fmtDate(d) === fmtDate(currentWeek);
+    const satLabel = sat.toLocaleDateString('es-CO',{day:'numeric',month:'short'});
+    const labels = ['Pasada','Actual','Próxima','Futura'];
+    return `<div class="week-btn ${isActive?'active':''}" onclick="selectWeek('${fmtDate(d)}')">
+      <div class="week-btn-label">${labels[i]}</div>
+      <div class="week-btn-date">Sáb ${satLabel}</div>
+    </div>`;
+  }).join('');
+}
+function selectWeek(dateStr) {
+  currentWeek = new Date(dateStr+'T12:00:00');
+  renderCronograma();
+}
+function renderCronograma() {
+  renderWeekSelector();
+  const sat = new Date(currentWeek); sat.setDate(sat.getDate() + 5);
+  const container = document.getElementById('blocks-container');
+  if (!container) return;
+  const weekStr = fmtDate(currentWeek);
+  container.innerHTML = BLOCKS.map(block => {
+    const tasks = block.tasks;
+    const doneCount = tasks.filter(t => completedTasks[t.id+'_'+weekStr]).length;
+    return `<div class="block-card">
+      <div class="block-header" onclick="toggleBlock(this)">
+        <div class="block-title">
+          <span>${block.icon}</span><span>${block.label}</span>
+          <span style="font-size:12px;color:var(--text3)">${doneCount}/${tasks.length}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="block-time ${block.color}">${block.time}</span>
+          <span style="font-size:18px;color:var(--text3);transition:transform .2s" class="chev">▾</span>
+        </div>
+      </div>
+      <div class="block-body">
+        <table class="task-table">
+          <thead><tr>
+            <th>Tarea</th><th style="width:140px">¿Quién lo hizo?</th><th style="width:70px">Tiempo</th><th style="width:70px">Nivel</th><th style="width:44px">✓</th>
+          </tr></thead>
+          <tbody>
+          ${tasks.map(t => renderTaskRow(t, weekStr)).join('')}
+          </tbody>
+        </table>
+        ${getMonthlyExtraForSat(sat) ? `<div style="padding:12px 16px;background:var(--bg);border-top:1px solid var(--border)">
+          <div class="section-title">🌟 Extra mensual de este sábado</div>
+          ${renderMonthlyExtraRows(sat, weekStr)}
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  updateMetric();
+}
+function renderTaskRow(t, weekStr) {
+  const key = t.id+'_'+weekStr;
+  const entry = completedTasks[key];
+  const done = !!entry;
+  const who = entry ? (entry.who || '') : '';
+  return `<tr class="${done?'completed':''}" id="tr-${key}">
+    <td>
+      <div class="task-name">${t.name}</div>
+      <div class="task-desc">${t.desc}</div>
+      ${t.guide ? `<div style="margin-top:6px"><button class="btn btn-outline btn-sm" onclick="toggleGuideRow('gr-${t.id}',event)">📖 Ver guía</button></div>` : ''}
+    </td>
+    <td>
+      <select class="who-select ${who?'sel-'+who:''}" id="ws-${key}" onchange="onWhoChange('${t.id}','${weekStr}',${t.pts},this)">
+        <option value="" ${!who?'selected':''}>— Seleccionar</option>
+        <option value="ju" ${who==='ju'?'selected':''}>Julieth</option>
+        <option value="ni" ${who==='ni'?'selected':''}>Nicolás</option>
+        <option value="both" ${who==='both'?'selected':''}>Ambos</option>
+      </select>
+    </td>
+    <td style="color:var(--text2);font-size:12px">${t.time}</td>
+    <td><span class="badge badge-diff-${t.diff}">${t.diff==='easy'?'Fácil':t.diff==='med'?'Media':'Difícil'}</span></td>
+    <td><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleTask('${t.id}','${weekStr}','${t.pts}',this)"></td>
+  </tr>
+  ${t.guide ? `<tr id="gr-${t.id}" style="display:none"><td colspan="5">
+    <div class="guide-detail">
+      <h4>📋 Guía paso a paso · ${t.name}</h4>
+      ${t.products ? `<div class="products">${t.products.map(p=>`<span class="prod-tag">${p}</span>`).join('')}</div>` : ''}
+      <ol class="step-ol" style="margin-top:10px">
+        ${t.guide.map((s,i)=>`<li><div class="step-n">${i+1}</div><span>${s}</span></li>`).join('')}
+      </ol>
+    </div>
+  </td></tr>` : ''}`;
+}
+function onWhoChange(taskId, weekStr, pts, sel) {
+  const who = sel.value;
+  sel.className = 'who-select' + (who ? ' sel-'+who : '');
+  const key = taskId+'_'+weekStr;
+  if (completedTasks[key]) {
+    completedTasks[key].who = who;
+    const logEntry = taskLog.find(l => l.id===taskId);
+    if (logEntry) logEntry.who = who;
+    localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
+    localStorage.setItem('task_log', JSON.stringify(taskLog));
+    updateRegistroStats();
+    showToast('Asignado a ' + (who==='ju'?'Julieth':who==='ni'?'Nicolás':'Ambos'));
+  }
+}
+async function toggleTask(taskId, weekStr, pts, chk) {
+  const key = taskId+'_'+weekStr;
+  const sel = document.getElementById('ws-'+key);
+  const who = sel ? sel.value : '';
+  const ptsNum = parseInt(pts);
+  if (chk.checked) {
+    const taskName = BLOCKS.flatMap(b=>b.tasks).find(t=>t.id===taskId)?.name || taskId;
+    completedTasks[key] = {who, name:taskName, pts:ptsNum, time:new Date().toISOString()};
+    taskLog.unshift({id:taskId, name:taskName, who, pts:ptsNum, time:new Date().toISOString()});
+    if (taskLog.length > 100) taskLog = taskLog.slice(0,100);
+    await saveTaskToSupabase(taskId, taskName, who, ptsNum);
+    showToast('✓ Completada' + (who ? ' · '+(who==='ju'?'Julieth':who==='ni'?'Nicolás':'Ambos') : ' (sin asignar)'));
+  } else {
+    delete completedTasks[key];
+    taskLog = taskLog.filter(l => l.id !== taskId);
+    await deleteTaskFromSupabase(taskId);
+  }
+  localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
+  localStorage.setItem('task_log', JSON.stringify(taskLog));
+  const tr = document.getElementById('tr-'+key);
+  if (tr) tr.className = chk.checked ? 'completed' : '';
+  updateMetric();
+  updateRegistroStats();
+}
+function getMonthlyExtraForSat(sat) {
+  const week = Math.ceil(sat.getDate() / 7);
+  return MONTHLY_EXTRA[week] || null;
+}
+function renderMonthlyExtraRows(sat, weekStr) {
+  const week = Math.ceil(sat.getDate() / 7);
+  const extra = MONTHLY_EXTRA[week];
+  if (!extra) return '';
+  return extra.tasks.map(t => {
+    const key = t.id+'_'+weekStr;
+    const entry = completedTasks[key];
+    const done = !!entry;
+    const who = entry ? (entry.who || '') : '';
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <input type="checkbox" class="chk" ${done?'checked':''} style="margin-top:3px" onchange="toggleMonthlyTask('${t.id}','${weekStr}',${t.pts},'${t.name}',this)">
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:13px">${t.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${t.desc}</div>
+      </div>
+      <select class="who-select ${who?'sel-'+who:''}" onchange="onWhoChange('${t.id}','${weekStr}',${t.pts},this)">
+        <option value="" ${!who?'selected':''}>— Seleccionar</option>
+        <option value="ju" ${who==='ju'?'selected':''}>Julieth</option>
+        <option value="ni" ${who==='ni'?'selected':''}>Nicolás</option>
+        <option value="both" ${who==='both'?'selected':''}>Ambos</option>
+      </select>
+      <span style="font-size:11px;color:var(--text3);white-space:nowrap;margin-top:4px">${t.time}</span>
+    </div>`;
+  }).join('');
+}
+async function toggleMonthlyTask(taskId, weekStr, pts, name, chk) {
+  const key = taskId+'_'+weekStr;
+  if (chk.checked) {
+    completedTasks[key] = {who:'', name, pts, time:new Date().toISOString()};
+    taskLog.unshift({id:taskId, name, who:'', pts, time:new Date().toISOString()});
+    await saveTaskToSupabase(taskId, name, '', pts);
+    showToast('✓ Extra mensual completado');
+  } else {
+    delete completedTasks[key];
+    taskLog = taskLog.filter(l => l.id !== taskId);
+    await deleteTaskFromSupabase(taskId);
+  }
+  localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
+  localStorage.setItem('task_log', JSON.stringify(taskLog));
+  updateMetric(); updateRegistroStats();
+}
+function toggleBlock(header) {
+  const body = header.nextElementSibling;
+  const chev = header.querySelector('.chev');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+function toggleGuideRow(id, e) {
+  e.stopPropagation();
+  const row = document.getElementById(id);
+  if (!row) return;
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+function updateMetric() {
+  const weekStr = fmtDate(currentWeek);
+  const done = Object.keys(completedTasks).filter(k => k.endsWith('_'+weekStr)).length;
+  const el = document.getElementById('metric-done');
+  if (el) el.textContent = done;
+}
+
+// ===================== CALENDAR =====================
+function renderCalendar() {
+  const y = currentMonth.getFullYear();
+  const m = currentMonth.getMonth();
+  const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const title = document.getElementById('month-title');
+  if (title) title.textContent = months[m]+' '+y;
+  const grid = document.getElementById('calendar-grid');
+  if (!grid) return;
+  const days = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  let html = days.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  const firstDay = new Date(y,m,1);
+  const startDow = firstDay.getDay();
+  const blanks = startDow === 0 ? 6 : startDow - 1;
+  for (let i=0; i<blanks; i++) html += `<div class="cal-day empty"><div class="cal-num">·</div></div>`;
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const todayD = new Date();
+  for (let d=1; d<=daysInMonth; d++) {
+    const date = new Date(y,m,d);
+    const dow = date.getDay();
+    const isSat = dow === 6;
+    const isToday = date.toDateString() === todayD.toDateString();
+    const dateStr = fmtDate(date);
+    const weekStart = fmtDate(getWeekStart(new Date(date)));
+    const tasksThisDay = isSat ? BLOCKS.reduce((acc,b)=>acc+b.tasks.length,0) : 0;
+    const doneThisDay = isSat ? Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStart)).length : 0;
+    const hasTasks = doneThisDay > 0;
+    const week = Math.ceil(d/7);
+    const monthExtra = isSat && MONTHLY_EXTRA[week];
+    let dots = '';
+    if (isSat) {
+      const juDone = Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStart) && completedTasks[k].who==='ju').length;
+      const niDone = Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStart) && completedTasks[k].who==='ni').length;
+      if (juDone>0) dots += `<div class="cal-dot cal-dot-done"></div>`;
+      if (niDone>0) dots += `<div class="cal-dot cal-dot-done"></div>`;
+      if (juDone===0) dots += `<div class="cal-dot cal-dot-ju"></div>`;
+      if (niDone===0) dots += `<div class="cal-dot cal-dot-ni"></div>`;
+    }
+    const clickable = isSat ? `onclick="openDayModal('${dateStr}',${week})"` : '';
+    html += `<div class="cal-day ${isToday?'today':''} ${isSat?'saturday':''} ${hasTasks?'has-tasks':''}" ${clickable}>
+      <div class="cal-num">${d}</div>
+      ${isSat ? `<div class="cal-label">Limpieza</div>` : ''}
+      <div class="cal-dots">${dots}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+function changeMonth(delta) {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+delta, 1);
+  renderCalendar();
+}
+function openDayModal(dateStr, weekNum) {
+  const date = new Date(dateStr+'T12:00:00');
+  const weekStart = fmtDate(getWeekStart(new Date(dateStr+'T12:00:00')));
+  const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('modal-day-title').textContent = 'Sábado '+date.getDate()+' de '+months[date.getMonth()]+' '+date.getFullYear();
+  document.getElementById('modal-day-sub').textContent = 'Plan de limpieza completo · 4 horas · Julieth + Nicolás';
+  const content = document.getElementById('modal-content');
+  let html = '';
+  BLOCKS.forEach(block => {
+    const doneCount = block.tasks.filter(t => completedTasks[t.id+'_'+weekStart]).length;
+    html += `<div class="modal-section">${block.icon} ${block.label} <span style="color:var(--text3);font-size:11px;">${block.time} · ${doneCount}/${block.tasks.length} hechas</span></div>`;
+    block.tasks.forEach(t => {
+      const key = t.id+'_'+weekStart;
+      const done = !!completedTasks[key];
+      html += `<div class="modal-task">
+        <div class="modal-task-check"><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleTask('${t.id}','${weekStart}','${t.who}','${t.name}',${t.pts},this);renderCalendar();"></div>
+        <div class="modal-task-info">
+          <div class="modal-task-name" style="${done?'text-decoration:line-through;opacity:.6':''}">${t.name}</div>
+          <div class="modal-task-meta">
+            <span class="badge badge-${t.who}">${t.who==='ju'?'Julieth':t.who==='ni'?'Nicolás':'Ambos'}</span>
+            <span style="font-size:11px;color:var(--text3);">${t.time}</span>
+            <span class="badge badge-diff-${t.diff}">${t.diff==='easy'?'Fácil':t.diff==='med'?'Media':'Difícil'}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+  const extra = MONTHLY_EXTRA[weekNum];
+  if (extra) {
+    html += `<div class="modal-section">🌟 Extra mensual — ${extra.label}</div>`;
+    extra.tasks.forEach(t => {
+      const key = t.id+'_'+weekStart;
+      const done = !!completedTasks[key];
+      html += `<div class="modal-task">
+        <div class="modal-task-check"><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleTask('${t.id}','${weekStart}','${t.who||'both'}','${t.name}',${t.pts},this);renderCalendar();"></div>
+        <div class="modal-task-info">
+          <div class="modal-task-name" style="${done?'text-decoration:line-through;opacity:.6':''}">${t.name}</div>
+          <div class="modal-task-meta">
+            <span class="badge badge-${t.who||'both'}">${t.who==='ju'?'Julieth':t.who==='ni'?'Nicolás':'Ambos'}</span>
+            <span style="font-size:11px;color:var(--text3);">${t.time}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px;">${t.desc}</div>
+        </div>
+      </div>`;
+    });
+  }
+  content.innerHTML = html;
+  document.getElementById('day-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('day-modal').classList.remove('open'); }
+
+// ===================== DAILY =====================
+const DAILY_SECTIONS = [
+  {key:'ju_morning', title:'Julieth — mañana', icon:'☀️', color:'var(--ju)', time:'8–10 min'},
+  {key:'ju_night',   title:'Julieth — noche',  icon:'🌙', color:'var(--ju)', time:'10–12 min'},
+  {key:'ni_morning', title:'Nicolás — mañana', icon:'☀️', color:'var(--ni)', time:'5–6 min'},
+  {key:'ni_night',   title:'Nicolás — noche',  icon:'🌙', color:'var(--ni)', time:'5–6 min'},
+];
+
+function renderDaily() {
+  const today = new Date();
+  const dateEl = document.getElementById('daily-date-display');
+  if (dateEl) dateEl.textContent = today.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const container = document.getElementById('daily-container');
+  if (!container) return;
+
+  container.innerHTML = DAILY_SECTIONS.map(s => {
+    const tasks = DAILY_TASKS[s.key];
+    const doneCount = tasks.filter(t => {const e=completedDaily[t.id+'_'+todayStr()]; return e&&e.done;}).length;
+    return `<div class="block-card">
+      <div class="block-header" onclick="toggleBlock(this)">
+        <div class="block-title">
+          <span style="font-size:18px">${s.icon}</span>
+          <span style="color:${s.color}">${s.title}</span>
+          <span style="font-size:12px;color:var(--text3)">${doneCount}/${tasks.length}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="block-time bt-green">${s.time}</span>
+          <span style="font-size:18px;color:var(--text3);transition:transform .2s" class="chev">▾</span>
+        </div>
+      </div>
+      <div class="block-body">
+        <table class="task-table">
+          <thead><tr>
+            <th>Tarea</th>
+            <th style="width:140px">¿Quién lo hizo?</th>
+            <th style="width:70px">Tiempo</th>
+            <th style="width:44px">✓</th>
+          </tr></thead>
+          <tbody>${tasks.map(t => renderDailyRow(t)).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+
+  const rotDiv = document.getElementById('rotativas-container');
+  if (!rotDiv) return;
+  const rotTasks = DAILY_TASKS.rotativas;
+  const rotDone = rotTasks.filter(t => {const e=completedDaily[t.id+'_'+todayStr()]; return e&&e.done;}).length;
+  rotDiv.innerHTML = `<div class="block-card">
+    <div class="block-header" onclick="toggleBlock(this)">
+      <div class="block-title">
+        <span style="font-size:18px">🔄</span>
+        <span>Rotativas</span>
+        <span style="font-size:12px;color:var(--text3)">${rotDone}/${rotTasks.length}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="block-time bt-green">2–3× semana</span>
+        <span style="font-size:18px;color:var(--text3);transition:transform .2s" class="chev">▾</span>
+      </div>
+    </div>
+    <div class="block-body">
+      <table class="task-table">
+        <thead><tr>
+          <th>Tarea</th>
+          <th style="width:140px">¿Quién lo hizo?</th>
+          <th style="width:80px">Frecuencia</th>
+          <th style="width:44px">✓</th>
+        </tr></thead>
+        <tbody>${rotTasks.map(t => renderDailyRotRow(t)).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderDailyRow(t) {
+  const key = t.id+'_'+todayStr();
+  const entry = completedDaily[key];
+  const done = !!(entry && entry.done);
+  const who = entry ? (entry.who||'') : '';
+  return `<tr class="${done?'completed':''}" id="dtr-${t.id}">
+    <td><div class="task-name">${t.name}</div></td>
+    <td><select class="who-select ${who?'sel-'+who:''}" id="dws-${t.id}" onchange="onDailyWhoChange('${t.id}',this)">
+      <option value="" ${!who?'selected':''}>— Seleccionar</option>
+      <option value="ju" ${who==='ju'?'selected':''}>Julieth</option>
+      <option value="ni" ${who==='ni'?'selected':''}>Nicolás</option>
+      <option value="both" ${who==='both'?'selected':''}>Ambos</option>
+    </select></td>
+    <td style="color:var(--text2);font-size:12px">${t.time}</td>
+    <td><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleDaily('${t.id}',this)"></td>
+  </tr>`;
+}
+
+function renderDailyRotRow(t) {
+  const key = t.id+'_'+todayStr();
+  const entry = completedDaily[key];
+  const done = !!(entry && entry.done);
+  const who = entry ? (entry.who||'') : '';
+  return `<tr class="${done?'completed':''}" id="dtr-${t.id}">
+    <td><div class="task-name">${t.name}</div><div class="task-desc">${t.time}</div></td>
+    <td><select class="who-select ${who?'sel-'+who:''}" id="dws-${t.id}" onchange="onDailyWhoChange('${t.id}',this)">
+      <option value="" ${!who?'selected':''}>— Seleccionar</option>
+      <option value="ju" ${who==='ju'?'selected':''}>Julieth</option>
+      <option value="ni" ${who==='ni'?'selected':''}>Nicolás</option>
+      <option value="both" ${who==='both'?'selected':''}>Ambos</option>
+    </select></td>
+    <td style="color:var(--text2);font-size:12px">${t.freq}</td>
+    <td><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleDaily('${t.id}',this)"></td>
+  </tr>`;
+}
+
+function onDailyWhoChange(taskId, sel) {
+  const who = sel.value;
+  sel.className = 'who-select' + (who ? ' sel-'+who : '');
+  const key = taskId+'_'+todayStr();
+  if (completedDaily[key]) {
+    completedDaily[key].who = who;
+    localStorage.setItem('completed_daily', JSON.stringify(completedDaily));
+    if (supabase_client && who) {
+      supabase_client.from('daily_log').upsert({task_id:taskId,who,log_date:todayStr(),completed:true},{onConflict:'task_id,log_date'}).catch(()=>{});
+    }
+    showToast('Asignado a '+(who==='ju'?'Julieth':who==='ni'?'Nicolás':'Ambos'));
+  }
+}
+
+async function toggleDaily(taskId, chk) {
+  const key = taskId+'_'+todayStr();
+  const sel = document.getElementById('dws-'+taskId);
+  const who = sel ? sel.value : '';
+  if (chk.checked) {
+    completedDaily[key] = {done:true, who, time:new Date().toISOString()};
+    if (supabase_client) {
+      supabase_client.from('daily_log').upsert({task_id:taskId,who,log_date:todayStr(),completed:true},{onConflict:'task_id,log_date'}).catch(()=>{});
+    }
+    showToast('✓ Listo'+(who?' · '+(who==='ju'?'Julieth':who==='ni'?'Nicolás':'Ambos'):''));
+  } else {
+    delete completedDaily[key];
+    if (supabase_client) {
+      supabase_client.from('daily_log').delete().eq('task_id',taskId).eq('log_date',todayStr()).catch(()=>{});
+    }
+  }
+  localStorage.setItem('completed_daily', JSON.stringify(completedDaily));
+  const tr = document.getElementById('dtr-'+taskId);
+  if (tr) tr.className = chk.checked ? 'completed' : '';
+}
+
+// ===================== REGISTRO =====================
+function renderRegistro() {
+  updateRegistroStats();
+}
+function updateRegistroStats() {
+  const weekStr = fmtDate(currentWeek);
+  const allLogs = taskLog;
+  const juLogs = allLogs.filter(l => l.who==='ju' || l.who==='both');
+  const niLogs = allLogs.filter(l => l.who==='ni' || l.who==='both');
+  const juWeek = Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStr)&&(completedTasks[k].who==='ju'||completedTasks[k].who==='both')).length;
+  const niWeek = Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStr)&&(completedTasks[k].who==='ni'||completedTasks[k].who==='both')).length;
+  const juPts = juLogs.reduce((s,l)=>s+(l.pts||1),0);
+  const niPts = niLogs.reduce((s,l)=>s+(l.pts||1),0);
+  const totalTasks = BLOCKS.reduce((s,b)=>s+b.tasks.length,0);
+  document.getElementById('ju-done').textContent = juLogs.length;
+  document.getElementById('ju-week').textContent = juWeek;
+  document.getElementById('ju-pts').textContent = juPts;
+  document.getElementById('ju-streak').textContent = getStreak('ju');
+  document.getElementById('ju-progress').style.width = Math.min(100,Math.round(juWeek/totalTasks*100))+'%';
+  document.getElementById('ni-done').textContent = niLogs.length;
+  document.getElementById('ni-week').textContent = niWeek;
+  document.getElementById('ni-pts').textContent = niPts;
+  document.getElementById('ni-streak').textContent = getStreak('ni');
+  document.getElementById('ni-progress').style.width = Math.min(100,Math.round(niWeek/totalTasks*100))+'%';
+  document.getElementById('metric-done').textContent = juWeek + niWeek;
+  renderLogList('ju-log', juLogs.slice(0,15));
+  renderLogList('ni-log', niLogs.slice(0,15));
+}
+function getStreak(who) {
+  // simplified streak based on weekly completions
+  const weekStr = fmtDate(currentWeek);
+  return Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStr)&&(completedTasks[k].who===who||completedTasks[k].who==='both')).length > 0 ? 1 : 0;
+}
+function renderLogList(containerId, logs) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!logs.length) { el.innerHTML = '<div class="log-empty">Sin registros aún. Marca tareas en el cronograma.</div>'; return; }
+  el.innerHTML = logs.map(l => {
+    const t = new Date(l.time);
+    const timeStr = t.toLocaleDateString('es-CO',{month:'short',day:'numeric'})+' '+t.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="log-item">
+      <span class="log-check">✓</span>
+      <span class="log-name">${l.name}</span>
+      <span class="log-time">${timeStr}</span>
+      <span class="log-pts">+${l.pts}</span>
+    </div>`;
+  }).join('');
+}
+async function clearWeekLog() {
+  if (!confirm('¿Limpiar el registro de esta semana?')) return;
+  const weekStr = fmtDate(currentWeek);
+  Object.keys(completedTasks).filter(k=>k.endsWith('_'+weekStr)).forEach(k => delete completedTasks[k]);
+  taskLog = taskLog.filter(l => !l.time || !l.time.startsWith(weekStr));
+  localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
+  localStorage.setItem('task_log', JSON.stringify(taskLog));
+  if (supabase_client) { try { await supabase_client.from('task_log').delete().eq('week_date',weekStr); } catch(e){} }
+  updateRegistroStats();
+  renderCronograma();
+  showToast('Semana limpiada');
+}
+
+// ===================== SHOPPING =====================
+function renderShop() {
+  const container = document.getElementById('shop-container');
+  if (!container) return;
+  const cats = {};
+  SHOPPING.forEach(item => { if (!cats[item.cat]) cats[item.cat]=[]; cats[item.cat].push(item); });
+  const catIcons = {'Baños':'🚿','Cocina':'🍳','Pisos':'🏠','General':'🧹','Lavandería':'👕','Gato':'🐱','Especiales':'✨'};
+  container.innerHTML = Object.entries(cats).map(([cat, items]) => {
+    const checkedCount = items.filter(i => shoppingChecked[i.id]).length;
+    return `<div>
+      <div class="shop-cat-header" onclick="toggleShopCat(this)">
+        <span>${catIcons[cat]||'📦'}</span>
+        <span style="flex:1">${cat}</span>
+        <span style="font-size:11px;color:var(--text3);font-weight:400">${checkedCount}/${items.length}</span>
+        <span style="margin-left:8px;transition:transform .2s" class="shop-chev">▾</span>
+      </div>
+      <div class="shop-cat-items open">
+        ${items.map(item => {
+          const ck = !!shoppingChecked[item.id];
+          return `<div class="shop-item ${ck?'checked':''}" id="shop-${item.id}">
+            <input type="checkbox" class="chk" ${ck?'checked':''} onchange="toggleShop('${item.id}',this)" style="flex-shrink:0;margin-top:2px">
+            <div style="flex:1"><span class="sname">${item.name}</span>${item.note?`<span class="shop-note">${item.note}</span>`:''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  const total = SHOPPING.length;
+  const checked = SHOPPING.filter(i=>shoppingChecked[i.id]).length;
+  const prog = document.getElementById('shop-progress');
+  if (prog) prog.textContent = checked + ' de ' + total + ' productos marcados';
+}
+function toggleShopCat(header) {
+  const items = header.nextElementSibling;
+  const chev = header.querySelector('.shop-chev');
+  const isOpen = items.classList.contains('open');
+  items.classList.toggle('open', !isOpen);
+  if (chev) chev.style.transform = isOpen ? 'rotate(-90deg)' : '';
+}
+async function toggleShop(id, chk) {
+  if (chk.checked) {
+    shoppingChecked[id] = true;
+    document.getElementById('shop-'+id)?.classList.add('checked');
+    if (supabase_client) { try { await supabase_client.from('shopping_checked').upsert({item_id:id},{onConflict:'item_id'}); } catch(e){} }
+  } else {
+    delete shoppingChecked[id];
+    document.getElementById('shop-'+id)?.classList.remove('checked');
+    if (supabase_client) { try { await supabase_client.from('shopping_checked').delete().eq('item_id',id); } catch(e){} }
+  }
+  localStorage.setItem('shopping_checked', JSON.stringify(shoppingChecked));
+}
+function checkAll() { SHOPPING.forEach(c=>c.items.forEach(i=>{ shoppingChecked[i.id]=true; })); localStorage.setItem('shopping_checked',JSON.stringify(shoppingChecked)); renderShop(); }
+function uncheckAll() { shoppingChecked={}; localStorage.setItem('shopping_checked',JSON.stringify(shoppingChecked)); renderShop(); }
+
+// ===================== GUÍAS =====================
+function renderGuias() {
+  const container = document.getElementById('guias-container');
+  if (!container) return;
+  container.innerHTML = GUIDES.map(g => `
+    <div class="block-card" style="margin-bottom:12px;">
+      <div class="block-header" onclick="toggleBlock(this)">
+        <div class="block-title"><span>${g.icon}</span><span>${g.name}</span><span style="font-size:12px;color:var(--text3);">${g.sub}</span></div>
+        <span style="font-size:18px;color:var(--text3);transition:transform .2s;" class="chev">▾</span>
+      </div>
+      <div class="block-body" style="padding:16px;">
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="btn btn-sm btn-outline" onclick="setGuideLevel(this,'${g.id}','rapido')" style="border-color:var(--accent2);color:var(--accent);">⚡ Rápido</button>
+          <button class="btn btn-sm btn-primary" onclick="setGuideLevel(this,'${g.id}','normal')">✓ Normal</button>
+          <button class="btn btn-sm btn-outline" onclick="setGuideLevel(this,'${g.id}','profundo')">🔍 Profundo</button>
+        </div>
+        ${Object.entries(g.levels).map(([lvl,data]) => `
+          <div id="glevel-${g.id}-${lvl}" style="display:${lvl==='normal'?'block':'none'};">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">⏱ ${data.time}</div>
+            <div class="products">${data.products.map(p=>`<span class="prod-tag">${p}</span>`).join('')}</div>
+            <ol class="step-ol" style="margin-top:10px;">
+              ${data.steps.map((s,i)=>`<li><div class="step-n">${i+1}</div><span>${s}</span></li>`).join('')}
+            </ol>
+          </div>`).join('')}
+        <div class="tip" style="margin-top:12px;">💡 ${g.tip}</div>
+      </div>
+    </div>`).join('');
+}
+function setGuideLevel(btn, guideId, level) {
+  ['rapido','normal','profundo'].forEach(l => {
+    const el = document.getElementById(`glevel-${guideId}-${l}`);
+    if (el) el.style.display = l===level ? 'block' : 'none';
+  });
+}
+
+// ===================== TOAST =====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== MOBILE =====================
+function toggleMobileMenu() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (!sidebar||!overlay) return;
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay')?.classList.remove('open');
+}
+
+// ===================== PWA INSTALL =====================
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (localStorage.getItem('install-dismissed') !== '1') {
+    const banner = document.getElementById('install-banner');
+    if (banner) banner.style.display = 'flex';
+  }
+});
+function installApp() {
+  if (!deferredPrompt) {
+    showToast('En iOS: pulsa Compartir → Añadir a pantalla de inicio');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(r => {
+    if (r.outcome === 'accepted') showToast('¡App instalada! 🎉');
+    deferredPrompt = null;
+    dismissInstall();
+  });
+}
+function dismissInstall() {
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('install-dismissed','1');
+}
+window.addEventListener('appinstalled', () => { showToast('¡App instalada! 🎉'); dismissInstall(); });
+
+// ===================== INIT =====================
+function updateAll() { updateMetric(); updateRegistroStats(); }
+window.addEventListener('click', e => {
+  const modal = document.getElementById('day-modal');
+  if (e.target === modal) closeModal();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const url = localStorage.getItem('sb_url');
+  const key = localStorage.getItem('sb_key');
+  if (url && key) {
+    const uEl = document.getElementById('sb-url');
+    const kEl = document.getElementById('sb-key');
+    if (uEl) uEl.value = url;
+    if (kEl) kEl.value = key;
+    try {
+      supabase_client = window.supabase.createClient(url, key);
+      setStatus('connecting','Reconectando...');
+      testConnection();
+    } catch(e) {}
+  }
+  renderCronograma();
+  updateAll();
+});
+</script>
+
+<!-- INSTALL BANNER (shown by JS when Chrome triggers beforeinstallprompt) -->
+<div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--accent);color:#fff;z-index:300;padding:12px 16px;flex-direction:row;align-items:center;gap:10px;font-size:13px;box-shadow:0 -2px 16px rgba(0,0,0,.2)">
+  <span style="font-size:20px">📲</span>
+  <span style="flex:1;font-weight:500">Añade la app a tu pantalla de inicio</span>
+  <button onclick="installApp()" style="background:#fff;color:var(--accent);border:none;padding:7px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;white-space:nowrap">Instalar</button>
+  <button onclick="dismissInstall()" style="background:rgba(255,255,255,.25);border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:2px 8px;border-radius:4px">×</button>
+</div>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>
